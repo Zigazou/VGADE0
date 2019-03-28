@@ -80,6 +80,8 @@ set_location_assignment PIN_AE8 -to vsync
 set_location_assignment PIN_AE9 -to hsync
 set_location_assignment PIN_V11 -to clk
 set_global_assignment -name OPTIMIZATION_MODE "AGGRESSIVE PERFORMANCE"
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name QSYS_FILE shared_memory.qsys
 set_global_assignment -name VERILOG_INCLUDE_FILE constant.vh
 set_global_assignment -name VERILOG_FILE vgade0.v
 set_global_assignment -name VERILOG_FILE video_memory.v
@@ -87,4 +89,4 @@ set_global_assignment -name VERILOG_FILE vga_timing_800_600_72.v
 set_global_assignment -name VERILOG_FILE vga_timing_640_480_60.v
 set_global_assignment -name VERILOG_FILE character_generator.v
 set_global_assignment -name VERILOG_FILE blinking.v
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name VERILOG_FILE sprite.v

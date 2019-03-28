@@ -45,14 +45,20 @@ vga_timing_800_600_72 vga_timer (
 	.drawing (drawing)
 );
 
+// Character attributes
 wire [`COLOR_RANGE] foreground;
 wire [`COLOR_RANGE] background;
-wire blink;
+wire [`SIZE_RANGE] size;
+wire [`PART_RANGE] part;
 wire [`CHARINDEX_RANGE] charindex;
-reg write;
+wire blink;
+wire underline;
+wire invert;
+
+reg write = 0;
 reg [`CHARATTR_RANGE] charvalue = 0;
-reg [`TEXTCOLS_RANGE] xtextwrite;
-reg [`TEXTROWS_RANGE] ytextwrite;
+reg [`TEXTCOLS_RANGE] xtextwrite = 0;
+reg [`TEXTROWS_RANGE] ytextwrite = 0;
 video_memory memory (
 	.clk (clk),
 
@@ -68,7 +74,10 @@ video_memory memory (
 
 	.foreground (foreground),
 	.background (background),
-	.blink (blink)
+	.size (size),
+	.part (part),
+	.blink (blink),
+	.underline (underline)
 );
 
 wire pixel;
@@ -77,13 +86,15 @@ character_generator char_gen (
 	.xchar (xchar),
 	.ychar (ychar),
 	.character_index (charindex),
+	.underline (underline),
+	.invert (invert),
 	.pixel (pixel)
 );
 
 wire blinking;
 blinking timer (
 	.clk (clk),
-	.reset (reset),
+	.reset (~reset_button),
 	.blinking (blinking)
 );
 
@@ -116,4 +127,5 @@ always @(negedge hsync) begin
 	write <= 1'b1;
 end
 */
+
 endmodule

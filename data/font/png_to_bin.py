@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from PIL import Image
 
 def getbit(rgbs, x, y):
     r, g, b = rgbs.getpixel((x, y))
-    if r > 0:
+    if r < 16 and g < 16 and b < 16:
         return 1
 
     return 0
@@ -27,32 +27,18 @@ def getcharbytes(rgbs, i, j):
 
     return bytes
 
-# G0 character set (alphanumerical)
-g0_charset = Image.open("ef9345-g0.png")
+# Load the image
+charset = Image.open("extended_videotex.png")
 
-rgbs = g0_charset.convert('RGB')
+# Convert the image to RGB
+rgbs = charset.convert('RGB')
 
 allbytes = []
-for i in range(0, 8):
+for i in range(0, 128):
     for j in range(0, 16):
         allbytes += getcharbytes(rgbs, i, j)
 
-with open('minitel-g0.txt', 'w') as f:
-    for byte in allbytes:
-        f.write(bin(byte)[2:].zfill(8))
-        f.write("\n")
-
-# G1 character set (mosaic)
-g1_charset = Image.open("ef9345-g1.png")
-
-rgbs = g1_charset.convert('RGB')
-
-allbytes = []
-for i in range(0, 8):
-    for j in range(0, 16):
-        allbytes += getcharbytes(rgbs, i, j)
-
-with open('minitel-g1.txt', 'w') as f:
+with open('extended_videotex.txt', 'w') as f:
     for byte in allbytes:
         f.write(bin(byte)[2:].zfill(8))
         f.write("\n")

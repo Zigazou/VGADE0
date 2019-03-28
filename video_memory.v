@@ -13,29 +13,35 @@ module video_memory(
 	output wire [`CHARINDEX_RANGE] charindex,
 	output wire [`COLOR_RANGE] foreground,
 	output wire [`COLOR_RANGE] background,
-	output wire blink
+	output wire [`SIZE_RANGE] size,
+	output wire [`PART_RANGE] part,
+	output wire blink,
+	output wire underline
 );
 
+// Video memory consists of a grid of character and attributes
 reg [`CHARATTR_RANGE] memory [0:`TEXTCOLS_CHAR * `TEXTROWS_CHAR - 1];
 initial $readmemb("data/video_memory.txt", memory);
 
-reg [`CHARATTR_RANGE] character;
-
+// Calculate character and attributes position in the video memory
 wire [`VIDMEM_RANGE] mempos;
-assign mempos = (ytext * 13'd100) + xtext;
+assign mempos = (ytext * 13'd`TEXTCOLS_CHAR) + xtext;
 
-assign charindex  = character[`CHARATTR_INDEX];
-assign foreground = character[`CHARATTR_FORE];
-assign background = character[`CHARATTR_BACK];
-assign blink      = character[`CHARATTR_BLINK];
+// Keep current character and attributes in cache
+reg [`CHARATTR_RANGE] character;
+always @(posedge clk) character <= memory[mempos];
 
-always @(posedge clk) begin
-	character <= memory[mempos];
-/*	if (write) memory[(ytextwrite * 13'd100) + xtextwrite] <= value;*/
-end
+// Split entry into character attributes
+assign charindex	= character[`CHARATTR_INDEX];
+assign foreground	= character[`CHARATTR_FORE];
+assign background	= character[`CHARATTR_BACK];
+assign blink		= character[`CHARATTR_BLINK];
+assign underline	= character[`CHARATTR_UNDERLINE];
+assign size			= character[`CHARATTR_SIZE];
+assign part			= character[`CHARATTR_PART];
 
-always @(posedge clk) begin
-	if (write) memory[(ytextwrite * 13'd100) + xtextwrite] <= value;
-end
+// Handle external writes to the video memory
+always @(posedge clk)
+	if (write) memory[(ytextwrite * 13'd`TEXTCOLS_CHAR) + xtextwrite] <= value;
 
 endmodule

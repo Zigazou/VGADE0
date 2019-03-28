@@ -4,16 +4,20 @@ module character_generator (
 
 	input [`CHARWIDTH_RANGE] xchar,
 	input [`CHARHEIGHT_RANGE] ychar,
+
 	input [`CHARINDEX_RANGE] character_index,
 
+	input underline,
+	input invert,
+	
 	output wire pixel
 );
 
 reg [`CHARROW_RANGE] character_design[`CHARS_AVAILABLE * `CHARHEIGHT_PIXELS];
-initial $readmemb("data/minitel.txt", character_design);
+initial $readmemb("data/extended_videotex.txt", character_design);
 
 wire [`CHARMEM_RANGE] char_start;
-assign char_start = character_index * 12'd`CHARHEIGHT_PIXELS + ychar;
+assign char_start = character_index * `CHARMEM_WIDTH'd`CHARHEIGHT_PIXELS + ychar;
 
 reg [7:0] mask;
 always @(posedge clk)
@@ -28,6 +32,11 @@ always @(posedge clk)
 		3'd7: mask <= 1;
 	endcase
 
-assign pixel = (character_design[char_start] & mask) != 7'd0;
+wire draw_underline;
+wire draw_pixel;
+assign draw_underline = underline & (ychar == 4'd9);
+assign draw_pixel = (character_design[char_start] & mask) != `CHARWIDTH_PIXELS'd0;
+
+assign pixel = (draw_underline | draw_pixel) ^ invert;
 
 endmodule
