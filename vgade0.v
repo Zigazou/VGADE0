@@ -9,7 +9,11 @@ module vgade0 (
 
 	output wire red,
 	output wire green,
-	output wire blue
+	output wire blue,
+	
+	// I2C communication
+	inout sda,
+	input scl
 );
 
 wire [`COORDINATE_RANGE] xpos;
@@ -55,21 +59,12 @@ wire blink;
 wire underline;
 wire invert;
 
-reg write = 0;
-reg [`CHARATTR_RANGE] charvalue = 0;
-reg [`TEXTCOLS_RANGE] xtextwrite = 0;
-reg [`TEXTROWS_RANGE] ytextwrite = 0;
 video_memory memory (
 	.clk (clk),
 
 	.xtext (xtext),
 	.ytext (ytext),
 
-	.write (write),
-	.xtextwrite (xtextwrite),
-	.ytextwrite (ytextwrite),
-	.value (charvalue),
-	
 	.charindex (charindex),
 
 	.foreground (foreground),
@@ -77,7 +72,36 @@ video_memory memory (
 	.size (size),
 	.part (part),
 	.blink (blink),
-	.underline (underline)
+	.underline (underline),
+	
+	.write (character_change),
+	.xtextwrite (xtextwrite),
+	.ytextwrite (ytextwrite),
+	.value (charattr)
+);
+
+wire character_change;
+wire [`TEXTCOLS_RANGE] xtextwrite;
+wire [`TEXTROWS_RANGE] ytextwrite;
+wire [7:0] attribute2;
+wire [7:0] attribute1;
+wire [7:0] character;
+wire [23:0] charattr;
+assign charattr = { attribute2, attribute1, character };
+
+i2c_slave i2c (
+	.clk (clk),
+	.sda (sda),
+	.scl (scl),
+	.rst (~reset_button),
+
+	.character_change (character_change),
+	
+	.character (character),
+	.xtext (xtextwrite),
+	.ytext (ytextwrite),
+	.attribute1 (attribute1),
+	.attribute2 (attribute2)
 );
 
 wire pixel;
@@ -117,15 +141,5 @@ assign bblue  = drawing & background[`BIT2];
 assign red   = (pixel & (~blink | blinking)) ? fred : bred;
 assign green = (pixel & (~blink | blinking)) ? fgreen : bgreen;
 assign blue  = (pixel & (~blink | blinking)) ? fblue : bblue;
-
-/*
-always @(negedge hsync) begin
-	write <= 1'b0;
-	xtextwrite <= xtextwrite + 1;
-	ytextwrite <= 10;
-	charvalue <= charvalue + 1;
-	write <= 1'b1;
-end
-*/
 
 endmodule

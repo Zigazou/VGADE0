@@ -57,6 +57,10 @@
 `define TEXTCOLS_CHAR		100
 `define TEXTCOLS_RANGE		6:0
 
+`define VIDMEM_SIZE			(100 * 60 * 3)
+`define VIDMEM_ADDR_BITS	15
+`define VIDMEM_ADDR_RANGE	14:0
+
 // Color width and range
 `define COLOR_WIDTH			3
 `define COLOR_RANGE			2:0

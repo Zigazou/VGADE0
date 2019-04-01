@@ -4,7 +4,7 @@ from PIL import Image
 
 def getbit(rgbs, x, y):
     r, g, b = rgbs.getpixel((x, y))
-    if r < 16 and g < 16 and b < 16:
+    if r < 32 and g < 32 and b < 32:
         return 1
 
     return 0
