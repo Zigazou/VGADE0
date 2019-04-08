@@ -53,29 +53,17 @@ set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_RO
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
 set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to blue
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to green
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to hsync
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to red
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to reset_button
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vsync
-set_instance_assignment -name CURRENT_STRENGTH_NEW 16MA -to blue
 set_instance_assignment -name CURRENT_STRENGTH_NEW 16MA -to clk
-set_instance_assignment -name CURRENT_STRENGTH_NEW 16MA -to green
 set_instance_assignment -name CURRENT_STRENGTH_NEW 16MA -to hsync
-set_instance_assignment -name CURRENT_STRENGTH_NEW 16MA -to red
 set_instance_assignment -name CURRENT_STRENGTH_NEW 16MA -to reset_button
 set_instance_assignment -name CURRENT_STRENGTH_NEW 16MA -to vsync
-set_instance_assignment -name SLEW_RATE 1 -to blue
-set_instance_assignment -name SLEW_RATE 1 -to green
 set_instance_assignment -name SLEW_RATE 1 -to hsync
-set_instance_assignment -name SLEW_RATE 1 -to red
 set_instance_assignment -name SLEW_RATE 1 -to vsync
 set_location_assignment PIN_AH17 -to reset_button
-set_location_assignment PIN_AE12 -to red
-set_location_assignment PIN_AE11 -to green
-set_location_assignment PIN_AF10 -to blue
 set_location_assignment PIN_AE8 -to vsync
 set_location_assignment PIN_AE9 -to hsync
 set_location_assignment PIN_V11 -to clk
@@ -95,11 +83,24 @@ set_global_assignment -name VERILOG_INCLUDE_FILE constant.vh
 set_global_assignment -name VERILOG_FILE vgade0.v
 set_global_assignment -name VERILOG_FILE video_memory.v
 set_global_assignment -name VERILOG_FILE vga_timing_800_600_72.v
-set_global_assignment -name VERILOG_FILE vga_timing_640_480_60.v
 set_global_assignment -name VERILOG_FILE character_generator.v
 set_global_assignment -name VERILOG_FILE blinking.v
 set_global_assignment -name VERILOG_FILE i2c_slave.v
 set_global_assignment -name VERILOG_FILE i2c_slave_register.v
 set_global_assignment -name VERILOG_FILE i2c_slave_serial.v
 set_global_assignment -name SMART_RECOMPILE ON
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to dac[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to dac[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to dac[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to dac
+set_instance_assignment -name CURRENT_STRENGTH_NEW 16MA -to dac[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 16MA -to dac[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 16MA -to dac[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 16MA -to dac
+set_instance_assignment -name SLEW_RATE 1 -to dac[2]
+set_instance_assignment -name SLEW_RATE 1 -to dac[1]
+set_instance_assignment -name SLEW_RATE 1 -to dac[0]
+set_location_assignment PIN_AE12 -to dac[0]
+set_location_assignment PIN_AE11 -to dac[1]
+set_location_assignment PIN_AF10 -to dac[2]
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

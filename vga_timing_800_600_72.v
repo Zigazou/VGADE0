@@ -7,18 +7,21 @@ module vga_timing_800_600_72 (
 
 	output wire hsync,
 	output wire vsync,
+
+	output wire clk_load_char,
+	output wire clk_draw_char,
+	
 	output reg [`COORDINATE_RANGE] xpos,
 	output reg [`COORDINATE_RANGE] ypos,
 
 	output wire [`COORDINATE_RANGE] xdraw,
 	output wire [`COORDINATE_RANGE] ydraw,
 
-	output wire [`CHARWIDTH_RANGE] xchar,
 	output reg [`CHARHEIGHT_RANGE] ychar,
 
 	output wire [`TEXTCOLS_RANGE] xtext,
 	output reg [`TEXTROWS_RANGE] ytext,
-	
+
 	output wire drawing
 );
 
@@ -58,9 +61,6 @@ localparam vsync_end = vsync_start + frame_sync_pulse;
 localparam vdrawing_start = frame_front_porch;
 localparam vdrawing_end   = vdrawing_start + frame_visible_area;
 
-wire hdrawing;
-wire vdrawing;
-
 initial begin
 	xpos = 0;
 	ypos = 0;
@@ -86,8 +86,27 @@ always @(posedge clk or posedge reset)
 		end
 	end
 
-assign hdrawing = (xpos >= hdrawing_start) & (xpos < hdrawing_end);
-assign vdrawing = (ypos >= vdrawing_start) & (ypos < vdrawing_end);
+reg hdrawing;
+always @(posedge clk or posedge reset)
+	if (reset)
+		hdrawing <= `FALSE;
+	else
+		case (xpos)
+			hdrawing_start: hdrawing <= `TRUE;
+			hdrawing_end: hdrawing <= `FALSE;
+		endcase
+
+reg vdrawing;
+always @(posedge clk or posedge reset)
+	if (reset)
+		vdrawing <= `FALSE;
+	else
+		if (ypos == vdrawing_start)
+			vdrawing <= `TRUE;
+		else
+			if (ypos == vdrawing_end)
+				vdrawing <= `FALSE;
+
 assign drawing = hdrawing & vdrawing;
 
 assign xdraw = drawing ? (xpos - hdrawing_start) : 11'd0;
@@ -96,21 +115,50 @@ assign ydraw = drawing ? (ypos - vdrawing_start) : 11'd0;
 assign vsync = reset | (ypos < vsync_start);
 assign hsync = reset | (xpos < hsync_start);
 
-assign xchar = xdraw[`CHARWIDTH_RANGE];
-assign xtext = xdraw[`COORDINATE_WIDTH - 2:3];
+reg _clk_load_char;
+reg _clk_draw_char;
+reg [`TEXTCOLS_RANGE] _xtext;
+always @(posedge clk)
+	if (xpos >= hdrawing_start - 2 && xpos < hdrawing_end - 2) begin
+		if (((xpos - hdrawing_start - 2) & 7) == 0) begin
+			_clk_load_char <= `TRUE;
+		end else
+			_clk_load_char <= `FALSE;
+	end else begin
+		_clk_load_char <= `FALSE;
+	end
+
+always @(posedge clk)
+	if (xpos >= hdrawing_start && xpos < hdrawing_end) begin
+		if (((xpos - hdrawing_start) & 7) == 0) begin
+			_clk_draw_char <= `TRUE;
+			_xtext <= _xtext + 1;
+		end else
+			_clk_draw_char <= `FALSE;
+	end else begin
+		_clk_draw_char <= `FALSE;
+		_xtext <= 0;
+	end
+
+assign clk_load_char = _clk_load_char;
+assign clk_draw_char = _clk_draw_char;
+
+assign xtext = _xtext;
 
 always @(posedge clk or posedge reset)
 	if (reset) begin
 		ychar <= 0;
 		ytext <= 0;
-	end else
+	end else begin
 		if (xpos == 0 & vdrawing) begin
 			ychar <= ychar + 4'd1;
+
 			if (ychar == `CHARHEIGHT_PIXELS - 1) begin
-				ychar <= 0;
+				ychar <= 4'd0;
 				ytext <= ytext + 6'd1;
 			end
 		end else
-			if (~vdrawing) ytext <= 0;
+			if (~vdrawing) ytext <= 6'd0;
+	end
 
 endmodule

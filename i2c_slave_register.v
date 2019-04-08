@@ -55,50 +55,55 @@ module i2c_slave_register (
 	output reg [7:0] dataOut,
 
 	output reg character_change,
-	
-	output reg [7:0] character,
 	output reg [7:0] xtext,
 	output reg [7:0] ytext,
-	output reg [7:0] attribute1,
-	output reg [7:0] attribute2
+	output reg [`CHARATTR_RANGE] charattr
 );
+
+reg [7:0] _character;
+reg [7:0] _xtext;
+reg [7:0] _ytext;
+reg [7:0] _attribute1;
+reg [7:0] _attribute2;
 
 // --- I2C Read
 always @(posedge clk)
 	case (addr)
-		8'h00: dataOut <= character;  
-		8'h01: dataOut <= xtext;
-		8'h02: dataOut <= ytext;
-		8'h03: dataOut <= attribute1;
-		8'h04: dataOut <= attribute2;
+		8'h00: dataOut <= _character;
+		8'h01: dataOut <= _xtext;
+		8'h02: dataOut <= _ytext;
+		8'h03: dataOut <= _attribute1;
+		8'h04: dataOut <= _attribute2;
 		default: dataOut <= 8'h00;
 	endcase
 
 // --- I2C Write
-always @(posedge clk)
-	if (writeEn) begin
-		if (character_change) begin
-			character_change <= `FALSE;
-
-			xtext <= xtext + 1;
-			if (xtext >= `TEXTCOLS_CHAR) begin
-				xtext <= 0;
-				ytext <= ytext + 1;
-				if (ytext >= `TEXTROWS_CHAR) ytext <= 0;
-			end
+always @(posedge clk) begin
+	if (character_change) begin
+		character_change <= `FALSE;
+		_xtext <= _xtext + 1;
+		if (_xtext >= `TEXTCOLS_CHAR) begin
+			_xtext <= 0;
+			_ytext <= _ytext + 1;
+			if (_ytext >= `TEXTROWS_CHAR) _ytext <= 0;
 		end
+	end
 
+	if (writeEn)
 		case (addr)
 			8'h00: begin
+				_character <= dataIn;
+				xtext <= _xtext;
+				ytext <= _ytext;
+				charattr <= { _attribute2, _attribute1, _character };
 				character_change <= `TRUE;
-				character <= dataIn;
 			end
 
-			8'h01: xtext <= dataIn;
-			8'h02: ytext <= dataIn;
-			8'h03: attribute1 <= dataIn;
-			8'h04: attribute2 <= dataIn;
+			8'h01: _xtext <= dataIn;
+			8'h02: _ytext <= dataIn;
+			8'h03: _attribute1 <= dataIn;
+			8'h04: _attribute2 <= dataIn;
 		endcase
-	end
+end
 
 endmodule

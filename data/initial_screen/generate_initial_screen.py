@@ -54,9 +54,9 @@ with open('initial_screen.txt', 'w') as video_memory:
             c = CharAttr(char)
             if char == ':':
                 c.char = extend
-                c.background = Color.blue
-                c.blink = True
-                c.invert = True
+                c.background = extend % 8
+                c.foreground = Color.white
+                c.invert = False
                 extend += 1
                 if extend == 0x2e0:
                     extend = 0x200

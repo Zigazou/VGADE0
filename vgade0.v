@@ -1,3 +1,4 @@
+`timescale 1ns/10ps
 `include "constant.vh"
 module vgade0 (
 	input clk,
@@ -7,9 +8,7 @@ module vgade0 (
 	output wire hsync,
 	output wire vsync,
 
-	output wire red,
-	output wire green,
-	output wire blue,
+	output reg [2:0] dac,
 	
 	// I2C communication
 	inout sda,
@@ -22,7 +21,6 @@ wire drawing;
 
 wire [`COORDINATE_RANGE] xdraw;
 wire [`COORDINATE_RANGE] ydraw;
-wire [`CHARWIDTH_RANGE] xchar;
 wire [`CHARHEIGHT_RANGE] ychar;
 
 wire [`TEXTCOLS_RANGE] xtext;
@@ -30,6 +28,9 @@ wire [`TEXTROWS_RANGE] ytext;
 vga_timing_800_600_72 vga_timer (
 	.clk (clk),
 	.reset (~reset_button),
+
+	.clk_load_char (clk_load_char),
+	.clk_draw_char (clk_draw_char),
 
 	.hsync (hsync),
 	.vsync (vsync),
@@ -40,7 +41,6 @@ vga_timing_800_600_72 vga_timer (
 	.xdraw (xdraw),
 	.ydraw (ydraw),
 
-	.xchar (xchar),
 	.ychar (ychar),
 	
 	.xtext (xtext),
@@ -50,29 +50,29 @@ vga_timing_800_600_72 vga_timer (
 );
 
 // Character attributes
-wire [`COLOR_RANGE] foreground;
-wire [`COLOR_RANGE] background;
-wire [`SIZE_RANGE] size;
-wire [`PART_RANGE] part;
-wire [`CHARINDEX_RANGE] charindex;
-wire blink;
-wire underline;
-wire invert;
-
+wire [`SIZE_RANGE] _size;
+wire [`PART_RANGE] _part;
+wire [`CHARINDEX_RANGE] _charindex;
+wire _blink;
+wire _underline;
+wire _invert;
+wire [`COLOR_RANGE] _foreground;
+wire [`COLOR_RANGE] _background;
 video_memory memory (
 	.clk (clk),
+	.clk_load_char (clk_load_char),
 
 	.xtext (xtext),
 	.ytext (ytext),
 
-	.charindex (charindex),
+	.charindex (_charindex),
 
-	.foreground (foreground),
-	.background (background),
-	.size (size),
-	.part (part),
-	.blink (blink),
-	.underline (underline),
+	.foreground (_foreground),
+	.background (_background),
+	.size (_size),
+	.part (_part),
+	.blink (_blink),
+	.underline (_underline),
 	
 	.write (character_change),
 	.xtextwrite (xtextwrite),
@@ -83,12 +83,7 @@ video_memory memory (
 wire character_change;
 wire [`TEXTCOLS_RANGE] xtextwrite;
 wire [`TEXTROWS_RANGE] ytextwrite;
-wire [7:0] attribute2;
-wire [7:0] attribute1;
-wire [7:0] character;
-wire [23:0] charattr;
-assign charattr = { attribute2, attribute1, character };
-
+wire [`CHARATTR_RANGE] charattr;
 i2c_slave i2c (
 	.clk (clk),
 	.sda (sda),
@@ -96,23 +91,28 @@ i2c_slave i2c (
 	.rst (~reset_button),
 
 	.character_change (character_change),
-	
-	.character (character),
 	.xtext (xtextwrite),
 	.ytext (ytextwrite),
-	.attribute1 (attribute1),
-	.attribute2 (attribute2)
+	.charattr (charattr)
 );
 
-wire pixel;
+wire [7:0] _row;
 character_generator char_gen (
-	.clk (clk),
-	.xchar (xchar),
+	.clk_load_char (clk_load_char),
+
 	.ychar (ychar),
-	.character_index (charindex),
-	.underline (underline),
-	.invert (invert),
-	.pixel (pixel)
+
+	.character_index (_charindex),
+
+	.xsize (_size[0]),
+	.ysize (_size[1]),
+
+	.xpart (_part[0]),
+	.ypart (_part[1]),
+
+	.underline (_underline),
+	.invert (_invert),
+	.row_pixels (_row)
 );
 
 wire blinking;
@@ -122,24 +122,29 @@ blinking timer (
 	.blinking (blinking)
 );
 
-wire fred;
-wire fgreen;
-wire fblue;
+reg [`COLOR_RANGE] foreground;
+reg [`COLOR_RANGE] background;
+reg blink;
+reg pixel;
+reg [7:0] row;
 
-wire bred;
-wire bgreen;
-wire bblue;
+wire [7:0] irow;
+assign irow = { row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[0] };
 
-assign fred   = drawing & foreground[`BIT0];
-assign fgreen = drawing & foreground[`BIT1];
-assign fblue  = drawing & foreground[`BIT2];
+always @(posedge clk_draw_char) begin
+	row        <= _row;
+	foreground <= _foreground;
+	background <= _background;
+	blink      <= _blink;
+end
 
-assign bred   = drawing & background[`BIT0];
-assign bgreen = drawing & background[`BIT1];
-assign bblue  = drawing & background[`BIT2];
-
-assign red   = (pixel & (~blink | blinking)) ? fred : bred;
-assign green = (pixel & (~blink | blinking)) ? fgreen : bgreen;
-assign blue  = (pixel & (~blink | blinking)) ? fblue : bblue;
+always @(posedge clk)
+	case ({ drawing, irow[xpos[2:0]], ~blink | blinking })
+		3'b111: dac <= foreground;
+		3'b110: dac <= background;
+		3'b101: dac <= background;
+		3'b100: dac <= background;
+		default: dac <= 3'b0;
+	endcase
 
 endmodule

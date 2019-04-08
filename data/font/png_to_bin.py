@@ -36,10 +36,15 @@ rgbs = charset.convert('RGB')
 allbytes = []
 for i in range(0, 128):
     for j in range(0, 16):
-        allbytes += getcharbytes(rgbs, i, j)
+        
+        string = ""
+        for byte in getcharbytes(rgbs, i, j):
+            string = bin(byte)[2:].zfill(8) + string
+
+        allbytes.append(string)
 
 with open('extended_videotex.txt', 'w') as f:
     for byte in allbytes:
-        f.write(bin(byte)[2:].zfill(8))
+        f.write(byte)
         f.write("\n")
 

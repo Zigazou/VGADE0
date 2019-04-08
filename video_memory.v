@@ -1,6 +1,7 @@
 `include "constant.vh"
 module video_memory(
 	input clk,
+	input clk_load_char,
 	input reset,
 
 	input [`TEXTCOLS_RANGE] xtext,
@@ -21,29 +22,29 @@ module video_memory(
 	input [`CHARATTR_RANGE] value
 );
 
+integer i;
+reg [15:0] ybase [0:`TEXTROWS_CHAR - 1];
+initial for (i = 0; i < `TEXTROWS_CHAR; i = i + 1) ybase[i] = i * `TEXTCOLS_CHAR;
+
 // Video memory consists of a grid of character and attributes
 reg [`CHARATTR_RANGE] memory [0:`TEXTCOLS_CHAR * `TEXTROWS_CHAR - 1];
 initial $readmemb("data/initial_screen.txt", memory);
 
-// Calculate character and attributes position in the video memory
-wire [`VIDMEM_RANGE] mempos;
-assign mempos = (ytext * 13'd`TEXTCOLS_CHAR) + xtext;
-
-// Keep current character and attributes in cache
+// Keep current character and attributes
 reg [`CHARATTR_RANGE] character;
-always @(posedge clk) character <= memory[mempos];
+always @(posedge clk_load_char) character <= memory[ybase[ytext] + xtext];
 
 // Split entry into character attributes
 assign charindex	= character[`CHARATTR_INDEX];
 assign foreground	= character[`CHARATTR_FORE];
 assign background	= character[`CHARATTR_BACK];
-assign blink		= character[`CHARATTR_BLINK];
-assign underline	= character[`CHARATTR_UNDERLINE];
 assign size			= character[`CHARATTR_SIZE];
 assign part			= character[`CHARATTR_PART];
+assign blink		= character[`CHARATTR_BLINK];
+assign underline	= character[`CHARATTR_UNDERLINE];
 
 // Handle external writes to the video memory
 always @(posedge clk)
-	if (write) memory[(ytextwrite * 13'd`TEXTCOLS_CHAR) + xtextwrite] <= value;
+	if (write) memory[ybase[ytextwrite] + xtextwrite] <= value;
 
 endmodule
