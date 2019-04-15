@@ -15,12 +15,9 @@ module vgade0 (
 	input scl
 );
 
-wire [`COORDINATE_RANGE] xpos;
-wire [`COORDINATE_RANGE] ypos;
 wire drawing;
 
-wire [`COORDINATE_RANGE] xdraw;
-wire [`COORDINATE_RANGE] ydraw;
+wire [`CHARWIDTH_RANGE] xchar;
 wire [`CHARHEIGHT_RANGE] ychar;
 
 wire [`TEXTCOLS_RANGE] xtext;
@@ -35,12 +32,7 @@ vga_timing_800_600_72 vga_timer (
 	.hsync (hsync),
 	.vsync (vsync),
 
-	.xpos (xpos),
-	.ypos (ypos),
-
-	.xdraw (xdraw),
-	.ydraw (ydraw),
-
+	.xchar (xchar),
 	.ychar (ychar),
 	
 	.xtext (xtext),
@@ -129,7 +121,7 @@ reg pixel;
 reg [7:0] row;
 
 wire [7:0] irow;
-assign irow = { row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[0] };
+assign irow = { row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7] };
 
 always @(posedge clk_draw_char) begin
 	row        <= _row;
@@ -139,7 +131,7 @@ always @(posedge clk_draw_char) begin
 end
 
 always @(posedge clk)
-	case ({ drawing, irow[xpos[2:0]], ~blink | blinking })
+	case ({ drawing, irow[xchar], ~blink | blinking })
 		3'b111: dac <= foreground;
 		3'b110: dac <= background;
 		3'b101: dac <= background;

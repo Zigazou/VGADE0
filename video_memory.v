@@ -4,8 +4,8 @@ module video_memory(
 	input clk_load_char,
 	input reset,
 
-	input [`TEXTCOLS_RANGE] xtext,
-	input [`TEXTROWS_RANGE] ytext,
+	input wire [`TEXTCOLS_RANGE] xtext,
+	input wire [`TEXTROWS_RANGE] ytext,
 
 	output wire [`CHARINDEX_RANGE] charindex,
 	output wire [`COLOR_RANGE] foreground,
@@ -24,7 +24,7 @@ module video_memory(
 
 integer i;
 reg [15:0] ybase [0:`TEXTROWS_CHAR - 1];
-initial for (i = 0; i < `TEXTROWS_CHAR; i = i + 1) ybase[i] = i * `TEXTCOLS_CHAR;
+initial for (i = 0; i < `TEXTROWS_CHAR; i = i + 1) ybase[i] = i * 16'd`TEXTCOLS_CHAR;
 
 // Video memory consists of a grid of character and attributes
 reg [`CHARATTR_RANGE] memory [0:`TEXTCOLS_CHAR * `TEXTROWS_CHAR - 1];
@@ -44,7 +44,7 @@ assign blink		= character[`CHARATTR_BLINK];
 assign underline	= character[`CHARATTR_UNDERLINE];
 
 // Handle external writes to the video memory
-always @(posedge clk)
-	if (write) memory[ybase[ytextwrite] + xtextwrite] <= value;
+always @(posedge write)
+	memory[ybase[ytextwrite] + xtextwrite] <= value;
 
 endmodule

@@ -14,151 +14,98 @@ module vga_timing_800_600_72 (
 	output reg [`COORDINATE_RANGE] xpos,
 	output reg [`COORDINATE_RANGE] ypos,
 
-	output wire [`COORDINATE_RANGE] xdraw,
-	output wire [`COORDINATE_RANGE] ydraw,
-
-	output reg [`CHARHEIGHT_RANGE] ychar,
+	output wire [`CHARWIDTH_RANGE] xchar,
+	output wire [`CHARHEIGHT_RANGE] ychar,
 
 	output wire [`TEXTCOLS_RANGE] xtext,
-	output reg [`TEXTROWS_RANGE] ytext,
+	output wire [`TEXTROWS_RANGE] ytext,
 
 	output wire drawing
 );
 
 // Horizontal timing in pixels (line)
 // http://www.tinyvga.com/vga-timing/800x600@72Hz
-localparam line_visible_area = `COORDINATE_WIDTH'd800;
-localparam line_front_porch  = `COORDINATE_WIDTH'd56;
-localparam line_sync_pulse   = `COORDINATE_WIDTH'd120;
-localparam line_back_porch   = `COORDINATE_WIDTH'd64;
+parameter line_visible_area = `COORDINATE_WIDTH'd800;
+parameter line_front_porch  = `COORDINATE_WIDTH'd56;
+parameter line_sync_pulse   = `COORDINATE_WIDTH'd120;
+parameter line_back_porch   = `COORDINATE_WIDTH'd64;
 
 // Vertical timing in lines (frame)
 // http://www.tinyvga.com/vga-timing/800x600@72Hz
-localparam frame_visible_area = `COORDINATE_WIDTH'd600;
-localparam frame_front_porch  = `COORDINATE_WIDTH'd37;
-localparam frame_sync_pulse   = `COORDINATE_WIDTH'd6;
-localparam frame_back_porch   = `COORDINATE_WIDTH'd23;
+parameter frame_visible_area = `COORDINATE_WIDTH'd600;
+parameter frame_front_porch  = `COORDINATE_WIDTH'd37;
+parameter frame_sync_pulse   = `COORDINATE_WIDTH'd6;
+parameter frame_back_porch   = `COORDINATE_WIDTH'd23;
 
 // Start and end of the horizontal sync (in pixels)
-localparam hsync_start = line_front_porch
+localparam hsync_start = line_back_porch
                        + line_visible_area
-							  + line_back_porch;
+							  + line_front_porch;
 
 localparam hsync_end = hsync_start + line_sync_pulse;
 
 // Start and end of the horizontal drawing
-localparam hdrawing_start = line_front_porch;
+localparam hdrawing_start = line_back_porch;
 localparam hdrawing_end   = hdrawing_start + line_visible_area;
 
 // Start and end of the vertical sync (in lines)
-localparam vsync_start = frame_front_porch
+localparam vsync_start = frame_back_porch
                        + frame_visible_area
-							  + frame_back_porch;
+							  + frame_front_porch;
 
 localparam vsync_end = vsync_start + frame_sync_pulse;
 
 // Start and end of the vertical drawing
-localparam vdrawing_start = frame_front_porch;
+localparam vdrawing_start = frame_back_porch;
 localparam vdrawing_end   = vdrawing_start + frame_visible_area;
 
 initial begin
-	xpos = 0;
-	ypos = 0;
-	ychar = 0;
+	xpos <= 0;
+	ypos <= 0;
 end
 
 // Connect wires to the registers
-
-// Reset and increments need to be handled in the
-// same process block since they update the same registers.
 always @(posedge clk or posedge reset)
 	if (reset) begin
 		xpos <= 0;
 		ypos <= 0;
-	end else begin
-		xpos <= xpos + 11'd1;
-
-		// Horizontal move of the beam
-		if (xpos == hsync_end) begin
+	end else
+		if (xpos == hsync_end - 1) begin
 			xpos <= 0;
-			ypos <= ypos + 11'd1;
-			if (ypos == vsync_end) ypos <= 0;
-		end
-	end
-
-reg hdrawing;
-always @(posedge clk or posedge reset)
-	if (reset)
-		hdrawing <= `FALSE;
-	else
-		case (xpos)
-			hdrawing_start: hdrawing <= `TRUE;
-			hdrawing_end: hdrawing <= `FALSE;
-		endcase
-
-reg vdrawing;
-always @(posedge clk or posedge reset)
-	if (reset)
-		vdrawing <= `FALSE;
-	else
-		if (ypos == vdrawing_start)
-			vdrawing <= `TRUE;
-		else
-			if (ypos == vdrawing_end)
-				vdrawing <= `FALSE;
-
-assign drawing = hdrawing & vdrawing;
-
-assign xdraw = drawing ? (xpos - hdrawing_start) : 11'd0;
-assign ydraw = drawing ? (ypos - vdrawing_start) : 11'd0;
-
-assign vsync = reset | (ypos < vsync_start);
-assign hsync = reset | (xpos < hsync_start);
-
-reg _clk_load_char;
-reg _clk_draw_char;
-reg [`TEXTCOLS_RANGE] _xtext;
-always @(posedge clk)
-	if (xpos >= hdrawing_start - 2 && xpos < hdrawing_end - 2) begin
-		if (((xpos - hdrawing_start - 2) & 7) == 0) begin
-			_clk_load_char <= `TRUE;
+			if (ypos == vsync_end - 1)
+				ypos <= 0;
+			else
+				ypos <= ypos + `COORDINATE_WIDTH'd1;
 		end else
-			_clk_load_char <= `FALSE;
-	end else begin
-		_clk_load_char <= `FALSE;
-	end
+			xpos <= xpos + `COORDINATE_WIDTH'd1;
 
-always @(posedge clk)
-	if (xpos >= hdrawing_start && xpos < hdrawing_end) begin
-		if (((xpos - hdrawing_start) & 7) == 0) begin
-			_clk_draw_char <= `TRUE;
-			_xtext <= _xtext + 1;
-		end else
-			_clk_draw_char <= `FALSE;
-	end else begin
-		_clk_draw_char <= `FALSE;
-		_xtext <= 0;
-	end
+wire hdrawing;
+assign hdrawing = !reset
+					&& (xpos >= hdrawing_start)
+					&& (xpos < hdrawing_end);
 
-assign clk_load_char = _clk_load_char;
-assign clk_draw_char = _clk_draw_char;
+wire vdrawing;
+assign vdrawing = !reset
+					&& (ypos >= vdrawing_start)
+					&& (ypos < vdrawing_end);
 
-assign xtext = _xtext;
+assign drawing = hdrawing && vdrawing;
 
-always @(posedge clk or posedge reset)
-	if (reset) begin
-		ychar <= 0;
-		ytext <= 0;
-	end else begin
-		if (xpos == 0 & vdrawing) begin
-			ychar <= ychar + 4'd1;
+assign vsync = reset || (ypos < vsync_start);
+assign hsync = reset || (xpos < hsync_start);
 
-			if (ychar == `CHARHEIGHT_PIXELS - 1) begin
-				ychar <= 4'd0;
-				ytext <= ytext + 6'd1;
-			end
-		end else
-			if (~vdrawing) ytext <= 6'd0;
-	end
+assign xtext = (xpos - hdrawing_start - 5) / 8;
+assign xchar = (xpos - hdrawing_start) % 8;
+		
+assign ytext = (ypos - vdrawing_start) / 10;
+assign ychar = (ypos - vdrawing_start) % 10;
 
+assign clk_load_char = (xpos >= (hdrawing_start - 4))
+                    && (xpos < (hdrawing_end - 4))
+						  && (((xpos - hdrawing_start - 4) & 7) == 0);
+
+assign clk_draw_char = (xpos >= hdrawing_start)
+                    && (xpos < hdrawing_end)
+						  && (((xpos - hdrawing_start) & 7) == 0);
+						  
 endmodule

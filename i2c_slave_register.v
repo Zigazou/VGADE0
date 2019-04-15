@@ -78,17 +78,8 @@ always @(posedge clk)
 	endcase
 
 // --- I2C Write
-always @(posedge clk) begin
-	if (character_change) begin
-		character_change <= `FALSE;
-		_xtext <= _xtext + 1;
-		if (_xtext >= `TEXTCOLS_CHAR) begin
-			_xtext <= 0;
-			_ytext <= _ytext + 1;
-			if (_ytext >= `TEXTROWS_CHAR) _ytext <= 0;
-		end
-	end
 
+always @(posedge clk) begin
 	if (writeEn)
 		case (addr)
 			8'h00: begin
@@ -97,6 +88,17 @@ always @(posedge clk) begin
 				ytext <= _ytext;
 				charattr <= { _attribute2, _attribute1, _character };
 				character_change <= `TRUE;
+
+				if (_xtext == `TEXTCOLS_CHAR - 1) begin
+					_xtext <= 0;
+					if (_ytext == `TEXTROWS_CHAR - 1)
+						_ytext <= 0;
+					else
+						_ytext <= _ytext + 1;
+				end else
+					_xtext <= _xtext + 1;
+
+				character_change <= `FALSE;
 			end
 
 			8'h01: _xtext <= dataIn;

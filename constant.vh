@@ -32,10 +32,12 @@
 
 // Character width and range
 `define CHARWIDTH_PIXELS	8
+`define CHARWIDTH_WIDTH    3
 `define CHARWIDTH_RANGE		2:0
 
 // Character height
 `define CHARHEIGHT_PIXELS	10
+`define CHARHEIGHT_WIDTH   4
 `define CHARHEIGHT_RANGE	3:0
 
 // Character index width and range
@@ -52,9 +54,11 @@
 
 // Text grid
 `define TEXTROWS_CHAR		60
+`define TEXTROWS_WIDTH     6
 `define TEXTROWS_RANGE		5:0
 
 `define TEXTCOLS_CHAR		100
+`define TEXTCOLS_WIDTH     7
 `define TEXTCOLS_RANGE		6:0
 
 `define VIDMEM_SIZE			(100 * 60 * 3)
