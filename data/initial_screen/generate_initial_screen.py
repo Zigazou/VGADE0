@@ -47,19 +47,20 @@ class CharAttr:
 
 rows = open("screen.txt", "rb").read(16384).split("\n")
 
-extend = 0x200
+#extend = 0x200
 with open('initial_screen.txt', 'w') as video_memory:
     for row in rows:
         for char in row:
             c = CharAttr(char)
             if char == ':':
-                c.char = extend
-                c.background = extend % 8
-                c.foreground = Color.white
+                #c.char = extend
+                #c.background = extend % 8
+                c.background = Color.yellow
+                c.foreground = Color.black
                 c.invert = False
-                extend += 1
-                if extend == 0x2e0:
-                    extend = 0x200
+                #extend += 1
+                #if extend == 0x2e0:
+                #    extend = 0x200
             elif char == '?':
                 c.foreground = Color.red
             elif (char >= 'A' and char <= 'Z'):

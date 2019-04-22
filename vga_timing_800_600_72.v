@@ -9,6 +9,7 @@ module vga_timing_800_600_72 (
 	output wire vsync,
 
 	output wire clk_load_char,
+	output wire clk_load_design,
 	output wire clk_draw_char,
 	
 	output reg [`COORDINATE_RANGE] xpos,
@@ -46,7 +47,11 @@ localparam hsync_end = hsync_start + line_sync_pulse;
 
 // Start and end of the horizontal drawing
 localparam hdrawing_start = line_back_porch;
-localparam hdrawing_end   = hdrawing_start + line_visible_area;
+localparam hdrawing_end   = hdrawing_start + line_visible_area + 8;
+
+// Start and end of the horizontal loading
+localparam hloading_start = hdrawing_start - 8;
+localparam hloading_end   = hdrawing_end - 8;
 
 // Start and end of the vertical sync (in lines)
 localparam vsync_start = frame_back_porch
@@ -84,6 +89,11 @@ assign hdrawing = !reset
 					&& (xpos >= hdrawing_start)
 					&& (xpos < hdrawing_end);
 
+wire hloading;
+assign hloading = !reset
+					&& (xpos >= hloading_start)
+					&& (xpos < hloading_end);
+
 wire vdrawing;
 assign vdrawing = !reset
 					&& (ypos >= vdrawing_start)
@@ -91,21 +101,26 @@ assign vdrawing = !reset
 
 assign drawing = hdrawing && vdrawing;
 
+wire loading;
+assign loading = hloading && vdrawing;
+
 assign vsync = reset || (ypos < vsync_start);
 assign hsync = reset || (xpos < hsync_start);
 
-assign xtext = (xpos - hdrawing_start - 5) / 8;
-assign xchar = (xpos - hdrawing_start) % 8;
+assign xtext = loading ? (xpos - hloading_start) / 8 : 0;
+assign xchar = drawing ? (xpos - hdrawing_start) % 8 : 0;
 		
-assign ytext = (ypos - vdrawing_start) / 10;
-assign ychar = (ypos - vdrawing_start) % 10;
+assign ytext = vdrawing ? (ypos - vdrawing_start) / 10 : 0;
+assign ychar = drawing ? (ypos - vdrawing_start) % 10 : 0;
 
-assign clk_load_char = (xpos >= (hdrawing_start - 4))
-                    && (xpos < (hdrawing_end - 4))
-						  && (((xpos - hdrawing_start - 4) & 7) == 0);
+assign clk_load_char = (xpos >= hloading_start)
+                    && (xpos < hloading_end)
+						  && (((xpos - hloading_start) % 8) == 0);
 
-assign clk_draw_char = (xpos >= hdrawing_start)
-                    && (xpos < hdrawing_end)
-						  && (((xpos - hdrawing_start) & 7) == 0);
+assign clk_load_design = (xpos >= hloading_start + 5)
+                      && (xpos < hloading_end + 5)
+					       && (((xpos - (hloading_start + 5)) % 8) == 0);
+
+assign clk_draw_char = drawing && (xchar == 0);
 						  
 endmodule

@@ -26,6 +26,7 @@ vga_timing_800_600_72 vga_timer (
 	.clk (clk),
 	.reset (~reset_button),
 
+	.clk_load_design (clk_load_design),
 	.clk_load_char (clk_load_char),
 	.clk_draw_char (clk_draw_char),
 
@@ -90,7 +91,7 @@ i2c_slave i2c (
 
 wire [7:0] _row;
 character_generator char_gen (
-	.clk_load_char (clk_load_char),
+	.clk_load_design (clk_load_design),
 
 	.ychar (ychar),
 
@@ -120,9 +121,6 @@ reg blink;
 reg pixel;
 reg [7:0] row;
 
-wire [7:0] irow;
-assign irow = { row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7] };
-
 always @(posedge clk_draw_char) begin
 	row        <= _row;
 	foreground <= _foreground;
@@ -131,7 +129,7 @@ always @(posedge clk_draw_char) begin
 end
 
 always @(posedge clk)
-	case ({ drawing, irow[xchar], ~blink | blinking })
+	case ({ drawing, row[xchar], ~blink | blinking })
 		3'b111: dac <= foreground;
 		3'b110: dac <= background;
 		3'b101: dac <= background;
