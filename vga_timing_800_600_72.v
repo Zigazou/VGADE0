@@ -47,11 +47,11 @@ localparam hsync_end = hsync_start + line_sync_pulse;
 
 // Start and end of the horizontal drawing
 localparam hdrawing_start = line_back_porch;
-localparam hdrawing_end   = hdrawing_start + line_visible_area + 8;
+localparam hdrawing_end   = hdrawing_start + line_visible_area;
 
 // Start and end of the horizontal loading
-localparam hloading_start = hdrawing_start - 8;
-localparam hloading_end   = hdrawing_end - 8;
+localparam hloading_start = hdrawing_start - 7;
+localparam hloading_end   = hdrawing_end - 7;
 
 // Start and end of the vertical sync (in lines)
 localparam vsync_start = frame_back_porch
@@ -86,7 +86,7 @@ always @(posedge clk or posedge reset)
 
 wire hdrawing;
 assign hdrawing = !reset
-					&& (xpos >= hdrawing_start)
+					&& (xpos >= hdrawing_start - 4)
 					&& (xpos < hdrawing_end);
 
 wire hloading;
@@ -108,8 +108,8 @@ assign vsync = reset || (ypos < vsync_start);
 assign hsync = reset || (xpos < hsync_start);
 
 assign xtext = loading ? (xpos - hloading_start) / 8 : 0;
-assign xchar = drawing ? (xpos - hdrawing_start) % 8 : 0;
-		
+assign xchar = drawing ? (xpos - hdrawing_start) & 7 : 0;
+
 assign ytext = vdrawing ? (ypos - vdrawing_start) / 10 : 0;
 assign ychar = drawing ? (ypos - vdrawing_start) % 10 : 0;
 
@@ -117,10 +117,10 @@ assign clk_load_char = (xpos >= hloading_start)
                     && (xpos < hloading_end)
 						  && (((xpos - hloading_start) % 8) == 0);
 
-assign clk_load_design = (xpos >= hloading_start + 5)
-                      && (xpos < hloading_end + 5)
-					       && (((xpos - (hloading_start + 5)) % 8) == 0);
+assign clk_load_design = (xpos >= hloading_start + 4)
+                      && (xpos < hloading_end + 4)
+					       && (((xpos - (hloading_start + 4)) % 8) == 0);
 
 assign clk_draw_char = drawing && (xchar == 0);
-						  
+
 endmodule

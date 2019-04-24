@@ -91,7 +91,7 @@ i2c_slave i2c (
 
 wire [7:0] _row;
 character_generator char_gen (
-	.clk_load_design (clk_load_design),
+	.clk_load_design (clk_load_char),
 
 	.ychar (ychar),
 
@@ -129,12 +129,12 @@ always @(posedge clk_draw_char) begin
 end
 
 always @(posedge clk)
-	case ({ drawing, row[xchar], ~blink | blinking })
-		3'b111: dac <= foreground;
-		3'b110: dac <= background;
-		3'b101: dac <= background;
-		3'b100: dac <= background;
-		default: dac <= 3'b0;
-	endcase
+	if (drawing)
+		if (row[xchar] & (~blink | blinking))
+			dac <= foreground;
+		else
+			dac <= background;
+	else
+		dac <= 3'b0;
 
 endmodule
