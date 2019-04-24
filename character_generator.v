@@ -24,13 +24,24 @@ initial $readmemb("data/extended_videotex.txt", character_design);
 wire draw_underline;
 assign draw_underline = underline & (ychar == 4'd9);
 
-wire [7:0] _row_pixels;
+reg [7:0] _row_pixels;
 reg [7:0] _scale_pixels;
-assign _row_pixels = character_design[character_index] >> { ychar, 1'b0, 1'b0, 1'b0 };
-always @(posedge clk_load_design)
+reg [7:0] row_select;
+
+always @(clk_load_design)
 	if (draw_underline)
 		_scale_pixels <= 8'b11111111;
 	else begin
+
+		case ({ ypart, ysize})
+			2'b00: row_select = ychar;
+			2'b10: row_select = ychar;
+			2'b01: row_select = { ychar[2], ychar[1] };
+			2'b11: row_select = 4 + { ychar[2], ychar[1] };
+		endcase
+
+		_row_pixels = character_design[character_index] >> { row_select, 1'b0, 1'b0, 1'b0 };
+
 		case ({ xpart, xsize })
 			2'b00: _scale_pixels <= {
 				_row_pixels[0],

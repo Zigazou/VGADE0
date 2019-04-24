@@ -18,7 +18,8 @@ module vga_timing_800_600_72 (
 	output wire [`CHARWIDTH_RANGE] xchar,
 	output wire [`CHARHEIGHT_RANGE] ychar,
 
-	output wire [`TEXTCOLS_RANGE] xtext,
+	output wire
+	[`TEXTCOLS_RANGE] xtext,
 	output wire [`TEXTROWS_RANGE] ytext,
 
 	output wire drawing
@@ -86,7 +87,7 @@ always @(posedge clk or posedge reset)
 
 wire hdrawing;
 assign hdrawing = !reset
-					&& (xpos >= hdrawing_start - 4)
+					&& (xpos >= hdrawing_start)
 					&& (xpos < hdrawing_end);
 
 wire hloading;
@@ -119,7 +120,7 @@ assign clk_load_char = (xpos >= hloading_start)
 
 assign clk_load_design = (xpos >= hloading_start + 4)
                       && (xpos < hloading_end + 4)
-					       && (((xpos - (hloading_start + 4)) % 8) == 0);
+					       && (((xpos - (hloading_start + 4)) & 7) == 0);
 
 assign clk_draw_char = drawing && (xchar == 0);
 
