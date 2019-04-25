@@ -32,12 +32,11 @@ always @(clk_load_design)
 	if (draw_underline)
 		_scale_pixels <= 8'b11111111;
 	else begin
-
-		case ({ ypart, ysize})
+		case ({ ypart, ysize })
 			2'b00: row_select = ychar;
 			2'b10: row_select = ychar;
-			2'b01: row_select = { ychar[2], ychar[1] };
-			2'b11: row_select = 4 + { ychar[2], ychar[1] };
+			2'b01: row_select = { ychar[3], ychar[2], ychar[1] };
+			2'b11: row_select = 8'd4 + { ychar[3], ychar[2], ychar[1] };
 		endcase
 
 		_row_pixels = character_design[character_index] >> { row_select, 1'b0, 1'b0, 1'b0 };
