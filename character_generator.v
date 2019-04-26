@@ -12,6 +12,7 @@ module character_generator (
 	input xpart,
 	input ypart,
 
+	input halftone,
 	input underline,
 	input invert,
 
@@ -27,11 +28,17 @@ assign draw_underline = underline & (ychar == 4'd9);
 reg [7:0] _row_pixels;
 reg [7:0] _scale_pixels;
 reg [7:0] row_select;
+reg [7:0] mask;
 
 always @(clk_load_design)
 	if (draw_underline)
 		_scale_pixels <= 8'b11111111;
 	else begin
+		mask <= halftone
+			? 8'b1010_1010 ^ { ychar[0], ychar[0], ychar[0], ychar[0], ychar[0], ychar[0], ychar[0], ychar[0] }
+			: 8'b1111_1111;
+
+		// Compute vertical zoom.
 		case ({ ypart, ysize })
 			2'b00: row_select = ychar;
 			2'b10: row_select = ychar;
@@ -39,9 +46,12 @@ always @(clk_load_design)
 			2'b11: row_select = 8'd5 + { ychar[3], ychar[2], ychar[1] };
 		endcase
 
+		// Retrieve the design of the selected row.
 		_row_pixels = character_design[character_index] >> { row_select, 1'b0, 1'b0, 1'b0 };
 
+		// Compute horizontal zoom.
 		case ({ xpart, xsize })
+			// Standard width.
 			2'b00: _scale_pixels <= {
 				_row_pixels[0],
 				_row_pixels[1],
@@ -52,6 +62,8 @@ always @(clk_load_design)
 				_row_pixels[6],
 				_row_pixels[7]
 			};
+
+			// Standard width (ignore illegal use of the part bit).
 			2'b10: _scale_pixels <= {
 				_row_pixels[0],
 				_row_pixels[1],
@@ -62,6 +74,8 @@ always @(clk_load_design)
 				_row_pixels[6],
 				_row_pixels[7]
 			};
+
+			// Double width, left part.
 			2'b01: _scale_pixels <= {
 				_row_pixels[4],
 				_row_pixels[4],
@@ -72,6 +86,8 @@ always @(clk_load_design)
 				_row_pixels[7],
 				_row_pixels[7]
 			};
+
+			// Double width, right part.
 			2'b11: _scale_pixels <= {
 				_row_pixels[0],
 				_row_pixels[0],
@@ -85,6 +101,7 @@ always @(clk_load_design)
 		endcase
 	end
 
-assign row_pixels = invert ? ~_scale_pixels : _scale_pixels;
+assign row_pixels = (invert ? ~_scale_pixels : _scale_pixels) & mask;
+//assign row_pixels = invert ? ~_scale_pixels : _scale_pixels;
 
 endmodule

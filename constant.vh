@@ -41,16 +41,16 @@
 `define CHARHEIGHT_RANGE	3:0
 
 // Character index width and range
-`define CHARINDEX_WIDTH		11
-`define CHARINDEX_RANGE		10:0
+`define CHARINDEX_WIDTH		10
+`define CHARINDEX_RANGE		9:0
 
 // Character design
 `define CHARROW_WIDTH		8
 `define CHARROW_RANGE		7:0
 
-`define CHARS_AVAILABLE		2048
-`define CHARMEM_WIDTH		15
-`define CHARMEM_RANGE		14:0
+`define CHARS_AVAILABLE		1024
+`define CHARMEM_WIDTH		14
+`define CHARMEM_RANGE		13:0
 
 // Text grid
 `define TEXTROWS_CHAR		60
@@ -82,7 +82,8 @@
 `define CHARATTR_WIDTH		24
 `define CHARATTR_RANGE		23:0
 
-`define CHARATTR_INDEX		10:0
+`define CHARATTR_INDEX		9:0
+`define CHARATTR_HALFTONE	10:10
 `define CHARATTR_SIZE		12:11
 `define CHARATTR_SIZE_HORZ	11:11
 `define CHARATTR_SIZE_VERT	12:12

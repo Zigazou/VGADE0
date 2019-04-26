@@ -34,7 +34,7 @@ charset = Image.open("extended_videotex.png")
 rgbs = charset.convert('RGB')
 
 allbytes = []
-for i in range(0, 128):
+for i in range(0, 64):
     for j in range(0, 16):
         
         string = ""

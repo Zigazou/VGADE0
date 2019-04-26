@@ -46,6 +46,7 @@ vga_timing_800_600_72 vga_timer (
 wire [`SIZE_RANGE] _size;
 wire [`PART_RANGE] _part;
 wire [`CHARINDEX_RANGE] _charindex;
+wire _halftone;
 wire _blink;
 wire _underline;
 wire _invert;
@@ -60,6 +61,7 @@ video_memory memory (
 
 	.charindex (_charindex),
 
+	.halftone (_halftone),
 	.foreground (_foreground),
 	.background (_background),
 	.size (_size),
@@ -103,6 +105,7 @@ character_generator char_gen (
 	.xpart (_part[0]),
 	.ypart (_part[1]),
 
+	.halftone (_halftone),
 	.underline (_underline),
 	.invert (_invert),
 	.row_pixels (_row)

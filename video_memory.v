@@ -7,6 +7,7 @@ module video_memory(
 	input wire [`TEXTCOLS_RANGE] xtext,
 	input wire [`TEXTROWS_RANGE] ytext,
 
+	output wire halftone,
 	output wire [`CHARINDEX_RANGE] charindex,
 	output wire [`COLOR_RANGE] foreground,
 	output wire [`COLOR_RANGE] background,
@@ -36,6 +37,7 @@ always @(posedge clk_load_char) character <= memory[ybase[ytext] + xtext];
 
 // Split entry into character attributes
 assign charindex	= character[`CHARATTR_INDEX];
+assign halftone	= character[`CHARATTR_HALFTONE];
 assign foreground	= character[`CHARATTR_FORE];
 assign background	= character[`CHARATTR_BACK];
 assign size			= character[`CHARATTR_SIZE];

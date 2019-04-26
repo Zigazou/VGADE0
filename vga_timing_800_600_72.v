@@ -66,8 +66,8 @@ localparam vdrawing_start = frame_back_porch;
 localparam vdrawing_end   = vdrawing_start + frame_visible_area;
 
 initial begin
-	xpos <= 0;
-	ypos <= 0;
+	xpos = 0;
+	ypos = 0;
 end
 
 // Connect wires to the registers
@@ -118,9 +118,9 @@ assign clk_load_char = (xpos >= hloading_start)
                     && (xpos < hloading_end)
 						  && (((xpos - hloading_start) % 8) == 0);
 
-assign clk_load_design = (xpos >= hloading_start + 2)
-                      && (xpos < hloading_end + 2)
-					       && (((xpos - (hloading_start + 2)) & 7) == 0);
+assign clk_load_design = (xpos >= hloading_start + 1)
+                      && (xpos < hloading_end + 1)
+					       && (((xpos - (hloading_start + 1)) & 7) == 0);
 
 assign clk_draw_char = drawing && (xchar == 0);
 
