@@ -16,7 +16,7 @@ module character_generator (
 	input underline,
 	input invert,
 
-	output wire [7:0] row_pixels
+	output reg [7:0] row_pixels
 );
 
 reg [79:0] character_design[`CHARS_AVAILABLE];
@@ -34,9 +34,13 @@ always @(clk_load_design)
 	if (draw_underline)
 		_scale_pixels <= 8'b11111111;
 	else begin
-		mask <= halftone
-			? 8'b1010_1010 ^ { ychar[0], ychar[0], ychar[0], ychar[0], ychar[0], ychar[0], ychar[0], ychar[0] }
-			: 8'b1111_1111;
+		// Compute mask for halftone function.
+		case ({ halftone, ychar[0] })
+			2'b00: mask = 8'b1111_1111;
+			2'b01: mask = 8'b1111_1111;
+			2'b10: mask = 8'b1010_1010;
+			2'b11: mask = 8'b0101_0101;
+		endcase
 
 		// Compute vertical zoom.
 		case ({ ypart, ysize })
@@ -52,7 +56,7 @@ always @(clk_load_design)
 		// Compute horizontal zoom.
 		case ({ xpart, xsize })
 			// Standard width.
-			2'b00: _scale_pixels <= {
+			2'b00: _scale_pixels = {
 				_row_pixels[0],
 				_row_pixels[1],
 				_row_pixels[2],
@@ -64,7 +68,7 @@ always @(clk_load_design)
 			};
 
 			// Standard width (ignore illegal use of the part bit).
-			2'b10: _scale_pixels <= {
+			2'b10: _scale_pixels = {
 				_row_pixels[0],
 				_row_pixels[1],
 				_row_pixels[2],
@@ -76,7 +80,7 @@ always @(clk_load_design)
 			};
 
 			// Double width, left part.
-			2'b01: _scale_pixels <= {
+			2'b01: _scale_pixels = {
 				_row_pixels[4],
 				_row_pixels[4],
 				_row_pixels[5],
@@ -88,7 +92,7 @@ always @(clk_load_design)
 			};
 
 			// Double width, right part.
-			2'b11: _scale_pixels <= {
+			2'b11: _scale_pixels = {
 				_row_pixels[0],
 				_row_pixels[0],
 				_row_pixels[1],
@@ -99,9 +103,8 @@ always @(clk_load_design)
 				_row_pixels[3]
 			};
 		endcase
+		
+		row_pixels <= (invert ? ~_scale_pixels : _scale_pixels) & mask;
 	end
-
-assign row_pixels = (invert ? ~_scale_pixels : _scale_pixels) & mask;
-//assign row_pixels = invert ? ~_scale_pixels : _scale_pixels;
 
 endmodule

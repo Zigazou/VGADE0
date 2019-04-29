@@ -118,9 +118,9 @@ assign clk_load_char = (xpos >= hloading_start)
                     && (xpos < hloading_end)
 						  && (((xpos - hloading_start) % 8) == 0);
 
-assign clk_load_design = (xpos >= hloading_start + 1)
-                      && (xpos < hloading_end + 1)
-					       && (((xpos - (hloading_start + 1)) & 7) == 0);
+assign clk_load_design = (xpos >= hloading_start + 2)
+                      && (xpos < hloading_end + 2)
+					       && (((xpos - (hloading_start + 2)) & 7) == 0);
 
 assign clk_draw_char = drawing && (xchar == 0);
 

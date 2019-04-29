@@ -21,18 +21,18 @@
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0.0"
+     inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.97310606"
-     inkscape:cx="213.94339"
-     inkscape:cy="18.140694"
+     inkscape:zoom="1.425905"
+     inkscape:cx="423.73851"
+     inkscape:cy="-98.636278"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1524"
-     inkscape:window-height="540"
+     inkscape:window-width="2837"
+     inkscape:window-height="1234"
      inkscape:window-x="109"
-     inkscape:window-y="1462"
+     inkscape:window-y="768"
      inkscape:window-maximized="0"
      inkscape:snap-grids="true"
      showguides="true"
@@ -91,16 +91,16 @@
     <text
        id="text4493"
        y="100.97227"
-       x="156.61224"
+       x="160.86633"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.39698696px;line-height:1.20000005;font-family:sans-serif;-inkscape-font-specification:sans-serif;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.7872175"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Bebas Neue';-inkscape-font-specification:'Bebas Neue';text-align:center;text-anchor:middle;stroke-width:0.7872175"
          y="100.97227"
-         x="156.61224"
+         x="160.86633"
          id="tspan4491"
          sodipodi:role="line">CHARACTER CODE <tspan
    style="fill:#6b6b6b;fill-opacity:1"
-   id="tspan5051">[0..2047]</tspan></tspan></text>
+   id="tspan5051">[0..1023]</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.54175711px;line-height:1.20000005;font-family:sans-serif;-inkscape-font-specification:sans-serif;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.51953971"
@@ -580,5 +580,27 @@
          x="-89.549995"
          id="tspan4980"
          sodipodi:role="line">vert</tspan></text>
+    <path
+       sodipodi:nodetypes="cc"
+       style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 118.53333,93.799999 V 105.46009"
+       id="path4578"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.96020103px;line-height:1;font-family:sans-serif;-inkscape-font-specification:sans-serif;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.37126887"
+       x="114.26658"
+       y="97.320488"
+       id="text4582"><tspan
+         sodipodi:role="line"
+         id="tspan4580"
+         x="114.26658"
+         y="97.320488"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:1;font-family:'Bebas Neue';-inkscape-font-specification:'Bebas Neue';text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke-width:0.37126887">HALF</tspan><tspan
+         sodipodi:role="line"
+         x="114.26658"
+         y="101.4787"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:1;font-family:'Bebas Neue';-inkscape-font-specification:'Bebas Neue';text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke-width:0.37126887"
+         id="tspan4588">TONE</tspan></text>
   </g>
 </svg>

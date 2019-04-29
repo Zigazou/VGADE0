@@ -106,4 +106,8 @@ set_location_assignment PIN_AF10 -to dac[2]
 set_global_assignment -name VERILOG_FILE counter.v
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (Verilog)"
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "VERILOG HDL" -section_id eda_simulation
+set_global_assignment -name VERILOG_FILE tpu.v
+set_global_assignment -name VERILOG_INCLUDE_FILE tpu.vh
+set_global_assignment -name VERILOG_FILE fifo_commands.v
+set_global_assignment -name VERILOG_INCLUDE_FILE fifo_commands.vh
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

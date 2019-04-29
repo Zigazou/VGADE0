@@ -1,0 +1,9 @@
+`ifndef FIFO_COMMANDS_CONSTANT
+`define FIFO_COMMANDS_CONSTANT
+
+`define FIFO_RANGE			3:0
+`define FIFO_LAST				14
+
+`define COMMAND_RANGE		47:0
+
+`endif
