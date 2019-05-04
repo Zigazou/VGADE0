@@ -9,6 +9,7 @@ module vgade0 (
 	output wire vsync,
 
 	output reg [2:0] dac,
+	output wire debug_led,
 	
 	// I2C communication
 	inout sda,
@@ -52,6 +53,12 @@ wire _underline;
 wire _invert;
 wire [`COLOR_RANGE] _foreground;
 wire [`COLOR_RANGE] _background;
+
+wire video_write;
+wire [15:0] video_address;
+wire [23:0] video_value;
+wire [23:0] video_mask;
+
 video_memory memory (
 	.clk (clk),
 	.clk_load_char (clk_load_char),
@@ -69,26 +76,45 @@ video_memory memory (
 	.blink (_blink),
 	.underline (_underline),
 	
-	.write (character_change),
-	.xtextwrite (xtextwrite),
-	.ytextwrite (ytextwrite),
-	.value (charattr)
+	.video_write (video_write),
+	.video_address (video_address),
+	.video_value (video_value),
+	.video_mask (video_mask)
 );
 
-wire character_change;
-wire [`TEXTCOLS_RANGE] xtextwrite;
-wire [`TEXTROWS_RANGE] ytextwrite;
-wire [`CHARATTR_RANGE] charattr;
+wire busy;
+wire execute;
+wire [47:0] command;
 i2c_slave i2c (
 	.clk (clk),
 	.sda (sda),
 	.scl (scl),
 	.rst (~reset_button),
 
-	.character_change (character_change),
-	.xtext (xtextwrite),
-	.ytext (ytextwrite),
-	.charattr (charattr)
+	.busy (busy),
+	.execute (execute),
+	.command (command)
+);
+
+tpu tpu_instance (
+	.clk (clk),
+	.reset (reset),
+
+	.execute (execute),
+	.command (command),
+	.busy (busy),
+
+	.video_write (video_write),
+	.video_address (video_address),
+	.video_value (video_value),
+	.video_mask (video_mask)
+);
+
+temoin debug(
+	.clk (clk),
+	.reset (~reset_button),
+	.signal (execute),
+	.light (debug_led)
 );
 
 wire [7:0] _row;

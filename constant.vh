@@ -97,4 +97,29 @@
 `define CHARATTR_UNDERLINE	22:22
 `define CHARATTR_INVERT		23:23
 
+// I2C addresses.
+// Set register.
+`define I2C_CHARACTER	8'h00
+`define I2C_XTEXT			8'h01
+`define I2C_YTEXT			8'h02
+`define I2C_ATTRIBUTE1	8'h03
+`define I2C_ATTRIBUTE2	8'h04
+`define I2C_MASK_CHAR	8'h05
+`define I2C_MASK_ATTR1	8'h06
+`define I2C_MASK_ATTR2	8'h07
+
+// Run command.
+`define I2C_CLEARSCREEN	8'h80
+`define I2C_PRINT			8'h81
+`define I2C_LOCATE		8'h82
+`define I2C_SETATTR		8'h83
+`define I2C_SETMASK		8'h84
+
+// TPU commands.
+`define TPU_CLEARSCREEN 8'h01
+`define TPU_PRINT 8'h02
+`define TPU_LOCATE 8'h03
+`define TPU_SETATTR 8'h04
+`define TPU_SETMASK 8'h05
+
 `endif

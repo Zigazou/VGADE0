@@ -49,10 +49,9 @@ module i2c_slave (
 	inout sda,
 	input scl,
 
-	output character_change,
-	output [7:0] xtext,
-	output [7:0] ytext,
-	output [`CHARATTR_RANGE] charattr
+	input busy,
+	output wire execute,
+	output wire [47:0] command
 );
 
 // Local wires and regs
@@ -155,10 +154,9 @@ i2c_slave_register u_register (
 	.writeEn (writeEn),
 	.dataOut (dataFromRegIF),
 
-	.character_change (character_change),
-	.xtext (xtext),
-	.ytext (ytext),
-	.charattr (charattr)
+	.busy (busy),
+	.execute (execute),
+	.command (command)
 );
 
 i2c_slave_serial u_serial (

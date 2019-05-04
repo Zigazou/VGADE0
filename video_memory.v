@@ -17,10 +17,10 @@ module video_memory(
 	output wire underline,
 
 	// Signals for external reads and writes
-	input write,
-	input [`TEXTCOLS_RANGE] xtextwrite,
-	input [`TEXTROWS_RANGE] ytextwrite,
-	input [`CHARATTR_RANGE] value
+	input video_write,
+	input [15:0] video_address,
+	input [`CHARATTR_RANGE] video_value,
+	input [`CHARATTR_RANGE] video_mask
 );
 
 reg [15:0] i;
@@ -47,6 +47,6 @@ assign underline	= character[`CHARATTR_UNDERLINE];
 
 // Handle external writes to the video memory
 always @(posedge clk)
-	memory[ybase[ytextwrite] + xtextwrite] <= value;
-
+	if (video_write) memory[video_address] <= (memory[video_address] & ~video_mask) | (video_value & video_mask);
+	
 endmodule

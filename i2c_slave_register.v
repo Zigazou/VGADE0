@@ -47,6 +47,7 @@
 `include "constant.vh"
 `include "i2c_slave.vh"
 
+
 module i2c_slave_register (
 	input clk,
 	input [7:0] addr,
@@ -54,10 +55,9 @@ module i2c_slave_register (
 	input writeEn,
 	output reg [7:0] dataOut,
 
-	output reg character_change,
-	output reg [7:0] xtext,
-	output reg [7:0] ytext,
-	output reg [`CHARATTR_RANGE] charattr
+	input busy,
+	output reg execute,
+	output reg [47:0] command
 );
 
 reg [7:0] _character;
@@ -66,41 +66,49 @@ reg [7:0] _ytext;
 reg [7:0] _attribute1;
 reg [7:0] _attribute2;
 
+reg [7:0] _mask_char;
+reg [7:0] _mask_attr1;
+reg [7:0] _mask_attr2;
+
 // --- I2C Read
 always @(posedge clk)
 	case (addr)
-		8'h00: dataOut <= _character;
-		8'h01: dataOut <= _xtext;
-		8'h02: dataOut <= _ytext;
-		8'h03: dataOut <= _attribute1;
-		8'h04: dataOut <= _attribute2;
+		`I2C_CHARACTER: dataOut <= _character;
+		`I2C_XTEXT: dataOut <= _xtext;
+		`I2C_YTEXT: dataOut <= _ytext;
+		`I2C_ATTRIBUTE1: dataOut <= _attribute1;
+		`I2C_ATTRIBUTE2: dataOut <= _attribute2;
+		`I2C_MASK_CHAR: dataOut <= _mask_char;
+		`I2C_MASK_ATTR1: dataOut <= _mask_attr1;
+		`I2C_MASK_ATTR2: dataOut <= _mask_attr2;
 		default: dataOut <= 8'h00;
 	endcase
 
 // --- I2C Write
 always @(posedge clk)
-	if (writeEn)
+	if (writeEn & ~busy) begin
 		case (addr)
-			8'h00: begin
-				xtext <= _xtext;
-				ytext <= _ytext;
-				_character = dataIn;
-				charattr = { _attribute2, _attribute1, _character };
+			// Set register value.
+			`I2C_CHARACTER: _character <= dataIn;
+			`I2C_XTEXT: _xtext <= dataIn;
+			`I2C_YTEXT: _ytext <= dataIn;
+			`I2C_ATTRIBUTE1: _attribute1 <= dataIn;
+			`I2C_ATTRIBUTE2: _attribute2 <= dataIn;
+			`I2C_MASK_CHAR: _mask_char <= dataIn;
+			`I2C_MASK_ATTR1: _mask_attr1 <= dataIn;
+			`I2C_MASK_ATTR2: _mask_attr2 <= dataIn;
 
-				if (_xtext == `TEXTCOLS_CHAR - 1) begin
-					_xtext <= 0;
-					if (_ytext == `TEXTROWS_CHAR - 1)
-						_ytext <= 0;
-					else
-						_ytext <= _ytext + 1;
-				end else
-					_xtext <= _xtext + 1;
-			end
-
-			8'h01: _xtext <= dataIn;
-			8'h02: _ytext <= dataIn;
-			8'h03: _attribute1 <= dataIn;
-			8'h04: _attribute2 <= dataIn;
+			// Run command.
+			`I2C_CLEARSCREEN: command <= { 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, `TPU_CLEARSCREEN };
+			`I2C_PRINT: command <= { 8'h00, 8'h00, 8'h00, 8'h00, _character, `TPU_PRINT };
+			`I2C_LOCATE: command <= { 8'h00, 8'h00, 8'h00, _ytext, _xtext, `TPU_LOCATE };
+			`I2C_SETATTR: command <= { 8'h00, 8'h00, 8'h00, _attribute2, _attribute1, `TPU_SETATTR };
+			`I2C_SETMASK: command <= { 8'h00, 8'h00, _mask_attr2, _mask_attr1, _mask_char, `TPU_SETMASK };
 		endcase
+
+		// If it is a command, it must be executed.
+		if (addr >= 8'h80) execute <= `TRUE;
+	end else
+		execute <= `FALSE;
 
 endmodule
