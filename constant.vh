@@ -61,6 +61,8 @@
 `define TEXTCOLS_WIDTH     7
 `define TEXTCOLS_RANGE		6:0
 
+`define TEXT_TOTAL			6000
+
 `define VIDMEM_SIZE			(100 * 60 * 3)
 `define VIDMEM_ADDR_BITS	15
 `define VIDMEM_ADDR_RANGE	14:0

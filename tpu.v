@@ -34,7 +34,7 @@ localparam printchar_standard_end = 5;
 localparam printchar_double_width_left = 6;
 localparam printchar_double_width_right = 7;
 localparam printchar_double_width_end = 8;
-/*
+
 localparam printchar_double_height_top = 9;
 localparam printchar_double_height_bottom = 10;
 localparam printchar_double_height_end = 11;
@@ -44,7 +44,6 @@ localparam printchar_double_top_right = 13;
 localparam printchar_double_bottom_left = 14;
 localparam printchar_double_bottom_right = 15;
 localparam printchar_double_end = 16;
-*/
 
 localparam locate = 17;
 
@@ -141,7 +140,7 @@ always @(posedge clk)
 				end
 
 				clearscreen_iteration:
-					if (video_address == 16'd5999) begin
+					if (video_address == (16'd`TEXT_TOTAL - 1)) begin
 						video_address <= 16'h0000;
 						video_write <= `FALSE;
 						busy <= `FALSE;
@@ -151,13 +150,12 @@ always @(posedge clk)
 					end
 
 				printchar_init: begin
-					video_address <= xtext + ytext * 100;
+					video_address <= xtext + ytext * 16'd`TEXTCOLS_CHAR;
 					case (size)
 						2'b00: tpu_state <= printchar_standard;
 						2'b01: tpu_state <= printchar_double_width_left;
-						/*
 						2'b10: tpu_state <= printchar_double_height_top;
-						2'b11: tpu_state <= printchar_double_top_left;*/
+						2'b11: tpu_state <= printchar_double_top_left;
 					endcase
 				end
 
@@ -211,7 +209,6 @@ always @(posedge clk)
 				end
 
 				printchar_double_width_right: begin
-					video_write <= `TRUE;
 					video_address <= video_address + 1;
 					xtext <= xtext + 1;
 					video_value <= {
@@ -223,7 +220,7 @@ always @(posedge clk)
 						2'b01,
 						size,
 						halftone,
-						2'b00,
+						page,
 						command[15:8]
 					};
 					tpu_state <= printchar_double_width_end;
@@ -236,14 +233,131 @@ always @(posedge clk)
 					video_write <= `FALSE;
 					tpu_state <= readcommand;
 				end
-/*
-				printchar_double_height_top:
-				printchar_double_height_bottom:
-				printchar_double_top_left:
-				printchar_double_top_right:
-				printchar_double_bottom_left:
-				printchar_double_bottom_right:
-*/
+
+				printchar_double_height_top: begin
+					video_write <= `TRUE;
+					video_value <= {
+						invert,
+						underline,
+						background,
+						foreground,
+						blink,
+						2'b00,
+						size,
+						halftone,
+						page,
+						command[15:8]
+					};
+					tpu_state <= printchar_double_height_bottom;
+				end
+
+				printchar_double_height_bottom: begin
+					video_address <= video_address + 16'd`TEXTCOLS_CHAR;
+					ytext <= ytext + 1;
+					video_value <= {
+						invert,
+						underline,
+						background,
+						foreground,
+						blink,
+						2'b10,
+						size,
+						halftone,
+						page,
+						command[15:8]
+					};
+					tpu_state <= printchar_double_height_end;
+				end
+
+				printchar_double_height_end: begin
+					busy <= `FALSE;
+					video_address <= video_address - (16'd`TEXTCOLS_CHAR - 1);
+					xtext <= xtext + 1;
+					ytext <= ytext - 1;
+					video_write <= `FALSE;
+					tpu_state <= readcommand;
+				end
+
+				printchar_double_top_left: begin
+					video_write <= `TRUE;
+					video_value <= {
+						invert,
+						underline,
+						background,
+						foreground,
+						blink,
+						2'b00,
+						size,
+						halftone,
+						page,
+						command[15:8]
+					};
+					tpu_state <= printchar_double_top_right;
+				end
+
+				printchar_double_top_right: begin
+					video_address <= video_address + 1;
+					xtext <= xtext + 1;
+					video_value <= {
+						invert,
+						underline,
+						background,
+						foreground,
+						blink,
+						2'b01,
+						size,
+						halftone,
+						page,
+						command[15:8]
+					};
+					tpu_state <= printchar_double_bottom_left;
+				end
+
+				printchar_double_bottom_left: begin
+					video_address <= video_address + (16'd`TEXTCOLS_CHAR - 1);
+					xtext <= xtext - 1;
+					ytext <= ytext + 1;
+					video_value <= {
+						invert,
+						underline,
+						background,
+						foreground,
+						blink,
+						2'b10,
+						size,
+						halftone,
+						page,
+						command[15:8]
+					};
+					tpu_state <= printchar_double_bottom_right;
+				end
+				
+				printchar_double_bottom_right: begin
+					video_address <= video_address + 16'd1;
+					xtext <= xtext + 1;
+					video_value <= {
+						invert,
+						underline,
+						background,
+						foreground,
+						blink,
+						2'b11,
+						size,
+						halftone,
+						page,
+						command[15:8]
+					};
+					tpu_state <= printchar_double_end;
+				end
+
+				printchar_double_end: begin
+					busy <= `FALSE;
+					video_address <= video_address - (16'd`TEXTCOLS_CHAR - 1);
+					xtext <= xtext + 1;
+					ytext <= ytext - 1;
+					video_write <= `FALSE;
+					tpu_state <= readcommand;
+				end
 
 				locate: begin
 					xtext <= command[15:8];
