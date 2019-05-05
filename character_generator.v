@@ -23,7 +23,7 @@ reg [79:0] character_design[`CHARS_AVAILABLE];
 initial $readmemb("data/extended_videotex.txt", character_design);
 
 wire draw_underline;
-assign draw_underline = underline & (ychar == 4'd9);
+assign draw_underline = (ysize == ypart) & underline & (ychar == 4'd9);
 
 reg [7:0] _row_pixels;
 reg [7:0] _scale_pixels;
@@ -32,7 +32,12 @@ reg [7:0] mask;
 
 always @(clk_load_design)
 	if (draw_underline)
-		_scale_pixels <= 8'b11111111;
+		case ({ halftone, invert })
+			2'b00: row_pixels <= 8'hFF;
+			2'b01: row_pixels <= 8'h00;
+			2'b10: row_pixels <= 8'hAA;
+			2'b11: row_pixels <= 8'h55;
+		endcase
 	else begin
 		// Compute mask for halftone function.
 		case ({ halftone, ychar[0] })
