@@ -46,7 +46,9 @@ assign blink		= character[`CHARATTR_BLINK];
 assign underline	= character[`CHARATTR_UNDERLINE];
 
 // Handle external writes to the video memory
+wire [23:0] new_value;
+assign new_value = (memory[video_address] & ~video_mask) | (video_value & video_mask);
 always @(posedge clk)
-	if (video_write) memory[video_address] <= (memory[video_address] & ~video_mask) | (video_value & video_mask);
+	if (video_write) memory[video_address] <= new_value;
 	
 endmodule

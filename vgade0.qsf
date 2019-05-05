@@ -107,7 +107,6 @@ set_global_assignment -name VERILOG_FILE counter.v
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (Verilog)"
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "VERILOG HDL" -section_id eda_simulation
 set_global_assignment -name VERILOG_FILE tpu.v
-set_global_assignment -name VERILOG_INCLUDE_FILE tpu.vh
 set_global_assignment -name VERILOG_FILE temoin.v
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to debug_led
 set_instance_assignment -name CURRENT_STRENGTH_NEW 16MA -to debug_led

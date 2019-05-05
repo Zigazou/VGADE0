@@ -178,9 +178,9 @@ always @(posedge clk)
 
 				printchar_standard_end: begin
 					video_write <= `FALSE;
-					if (xtext == 99) begin
+					if (xtext == `TEXCOLS_CHAR - 1) begin
 						xtext <= 0;
-						if (ytext == 59)
+						if (ytext == `TEXTROWS_CHAR - 1)
 							ytext <= 0;
 						else
 							ytext <= ytext + 1;
