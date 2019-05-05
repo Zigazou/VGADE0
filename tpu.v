@@ -368,15 +368,18 @@ always @(posedge clk)
 				end
 
 			set_attributes: begin
+				// Attributes 1
+				page <= command[9:8];
+				halftone <= command[10];
 				size <= command[12:11];
+				// The part is ignored.
+				blink <= command[15];
+
+				// Attributes 2
 				foreground <= command[18:16];
 				background <= command[21:19];
-				blink <= command[15];
-				halftone <= command[10];
 				underline <= command[22];
 				invert <= command[23];
-				size <= command[12:11];
-				page <= command[9:8];
 
 				busy <= `FALSE;
 				tpu_state <= readcommand;

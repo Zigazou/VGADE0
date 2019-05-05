@@ -15,6 +15,7 @@ module video_memory(
 	output wire [`PART_RANGE] part,
 	output wire blink,
 	output wire underline,
+	output wire invert,
 
 	// Signals for external reads and writes
 	input video_write,
@@ -44,6 +45,7 @@ assign size			= character[`CHARATTR_SIZE];
 assign part			= character[`CHARATTR_PART];
 assign blink		= character[`CHARATTR_BLINK];
 assign underline	= character[`CHARATTR_UNDERLINE];
+assign invert		= character[`CHARATTR_INVERT];
 
 // Handle external writes to the video memory
 wire [23:0] new_value;

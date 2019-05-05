@@ -75,6 +75,7 @@ video_memory memory (
 	.part (_part),
 	.blink (_blink),
 	.underline (_underline),
+	.invert (_invert),
 	
 	.video_write (video_write),
 	.video_address (video_address),
