@@ -100,6 +100,7 @@ always @(posedge clk)
 		underline <= `FALSE;
 		invert <= `FALSE;
 
+		tpu_state <= readcommand;
 		busy <= `FALSE;
 	end else
 		case (tpu_state)
@@ -156,6 +157,7 @@ always @(posedge clk)
 						2'b01: tpu_state <= printchar_double_width_left;
 						2'b10: tpu_state <= printchar_double_height_top;
 						2'b11: tpu_state <= printchar_double_top_left;
+						default: tpu_state <= readcommand;
 					endcase
 				end
 
@@ -392,5 +394,23 @@ always @(posedge clk)
 				tpu_state <= readcommand;
 			end
 
+		default: begin
+			video_write <= `FALSE;
+			video_address <= 0;
+			video_value <= 24'h000;
+			video_mask <= 24'hFFFFFF;
+
+			xtext <= 0;
+			ytext <= 0;
+			foreground <= 7;
+			background <= 0;
+			blink <= `FALSE;
+			halftone <= `FALSE;
+			underline <= `FALSE;
+			invert <= `FALSE;
+
+			tpu_state <= readcommand;
+			busy <= `FALSE;
+		end
 	endcase
 endmodule

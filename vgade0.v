@@ -9,7 +9,6 @@ module vgade0 (
 	output wire vsync,
 
 	output reg [2:0] dac,
-	output wire debug_led,
 	
 	// I2C communication
 	inout sda,
@@ -114,13 +113,6 @@ tpu tpu_instance (
 	.video_mask (video_mask)
 );
 
-temoin debug(
-	.clk (clk),
-	.reset (~reset_button),
-	.signal (execute),
-	.light (debug_led)
-);
-
 wire [7:0] _row;
 character_generator char_gen (
 	.clk (clk),
@@ -128,7 +120,7 @@ character_generator char_gen (
 
 	.ychar (ychar),
 
-	.character_index (_charindex),
+	.charindex (_charindex),
 
 	.xsize (_size[0]),
 	.ysize (_size[1]),
@@ -139,7 +131,7 @@ character_generator char_gen (
 	.halftone (_halftone),
 	.underline (_underline),
 	.invert (_invert),
-	.row_pixels (_row)
+	.pixels (_row)
 );
 
 wire blinking;
@@ -161,14 +153,22 @@ always @(posedge clk_draw_char) begin
 	background <= _background;
 	blink      <= _blink;
 end
+/*
+always @(posedge clk)
+	if (clk_draw_char) begin
+		row        <= _row;
+		foreground <= _foreground;
+		background <= _background;
+		blink      <= _blink;
+	end
+*/
 
 always @(posedge clk)
-	if (drawing)
-		if (row[xchar] & (~blink | blinking))
-			dac <= foreground;
-		else
-			dac <= background;
-	else
-		dac <= 3'b0;
+	case ({ drawing, row[xchar] & (~blink | blinking) })
+		2'b11: dac <= foreground;
+		2'b10: dac <= background;
+		default: dac <= 3'b0;
+	endcase
+
 
 endmodule
