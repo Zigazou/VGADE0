@@ -90,7 +90,7 @@ assign xtext = loading ? (xpos - hloading_start) / 11'h8 : 7'h00;
 assign xchar = drawing ? (xpos - hdrawing_start) & 11'h7 : 3'h0;
 
 assign ytext = vdrawing ? (ypos - vdrawing_start) / 11'd10 : 6'h00;
-assign ychar = drawing ? (ypos - vdrawing_start) % 11'd10 : 4'h0;
+assign ychar = vdrawing ? (ypos - vdrawing_start) % 11'd10 : 4'h0;
 
 assign clk_load_char = (xpos >= hloading_start)
                     && (xpos < hloading_end)
