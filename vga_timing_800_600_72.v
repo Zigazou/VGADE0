@@ -87,7 +87,7 @@ assign vsync = reset || (ypos < vsync_start);
 assign hsync = reset || (xpos < hsync_start);
 
 assign xtext = loading ? (xpos - hloading_start) / 11'h8 : 7'h00;
-assign xchar = drawing ? (xpos - hdrawing_start) & 11'h7 : 3'h0;
+assign xchar = (xpos - hdrawing_start) & 11'h7;
 
 assign ytext = vdrawing ? (ypos - vdrawing_start) / 11'd10 : 6'h00;
 assign ychar = vdrawing ? (ypos - vdrawing_start) % 11'd10 : 4'h0;

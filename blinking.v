@@ -14,10 +14,11 @@ integer counter;
 always @(posedge clk) 
 	if (reset)
 		counter <= 0;
-	else begin
-		counter <= counter + 1;
-		if (counter == duration) counter <= 0;
-	end
+	else
+		if (counter == duration - 1)
+			counter <= 0;
+		else
+			counter <= counter + 1;
 
 assign blinking = counter < duration_on;
 

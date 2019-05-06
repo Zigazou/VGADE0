@@ -153,6 +153,7 @@ always @(posedge clk_draw_char) begin
 	background <= _background;
 	blink      <= _blink;
 end
+
 /*
 always @(posedge clk)
 	if (clk_draw_char) begin
