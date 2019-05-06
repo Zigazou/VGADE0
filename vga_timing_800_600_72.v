@@ -71,7 +71,7 @@ initial begin
 end
 
 // Connect wires to the registers
-always @(posedge clk or posedge reset)
+always @(posedge clk)
 	if (reset) begin
 		xpos <= 0;
 		ypos <= 0;
@@ -108,11 +108,11 @@ assign loading = hloading && vdrawing;
 assign vsync = reset || (ypos < vsync_start);
 assign hsync = reset || (xpos < hsync_start);
 
-assign xtext = loading ? (xpos - hloading_start) / 8 : 0;
-assign xchar = drawing ? (xpos - hdrawing_start) & 7 : 0;
+assign xtext = loading ? (xpos - hloading_start) / 11'h8 : 7'h00;
+assign xchar = drawing ? (xpos - hdrawing_start) & 11'h7 : 3'h0;
 
-assign ytext = vdrawing ? (ypos - vdrawing_start) / 10 : 0;
-assign ychar = drawing ? (ypos - vdrawing_start) % 10 : 0;
+assign ytext = vdrawing ? (ypos - vdrawing_start) / 11'd10 : 6'h00;
+assign ychar = drawing ? (ypos - vdrawing_start) % 11'd10 : 4'h0;
 
 assign clk_load_char = (xpos >= hloading_start)
                     && (xpos < hloading_end)

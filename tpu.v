@@ -178,14 +178,14 @@ always @(posedge clk)
 
 				printchar_standard_end: begin
 					video_write <= `FALSE;
-					if (xtext == `TEXCOLS_CHAR - 1) begin
+					if (xtext == `TEXTCOLS_CHAR - 1) begin
 						xtext <= 0;
 						if (ytext == `TEXTROWS_CHAR - 1)
 							ytext <= 0;
 						else
-							ytext <= ytext + 1;
+							ytext <= ytext + 8'h01;
 					end else
-						xtext <= xtext + 1;
+						xtext <= xtext + 8'h01;
 
 					tpu_state <= readcommand;
 					busy <= `FALSE;
@@ -209,8 +209,8 @@ always @(posedge clk)
 				end
 
 				printchar_double_width_right: begin
-					video_address <= video_address + 1;
-					xtext <= xtext + 1;
+					video_address <= video_address + 16'h0001;
+					xtext <= xtext + 8'h01;
 					video_value <= {
 						invert,
 						underline,
@@ -228,8 +228,8 @@ always @(posedge clk)
 
 				printchar_double_width_end: begin
 					busy <= `FALSE;
-					video_address <= video_address + 1;
-					xtext <= xtext + 1;
+					video_address <= video_address + 16'h0001;
+					xtext <= xtext + 8'h01;
 					video_write <= `FALSE;
 					tpu_state <= readcommand;
 				end
@@ -253,7 +253,7 @@ always @(posedge clk)
 
 				printchar_double_height_bottom: begin
 					video_address <= video_address + 16'd`TEXTCOLS_CHAR;
-					ytext <= ytext + 1;
+					ytext <= ytext + 8'h01;
 					video_value <= {
 						invert,
 						underline,
@@ -271,9 +271,9 @@ always @(posedge clk)
 
 				printchar_double_height_end: begin
 					busy <= `FALSE;
-					video_address <= video_address - (16'd`TEXTCOLS_CHAR - 1);
-					xtext <= xtext + 1;
-					ytext <= ytext - 1;
+					video_address <= video_address - (16'd`TEXTCOLS_CHAR - 16'h0001);
+					xtext <= xtext + 8'h01;
+					ytext <= ytext - 8'h01;
 					video_write <= `FALSE;
 					tpu_state <= readcommand;
 				end
@@ -296,8 +296,8 @@ always @(posedge clk)
 				end
 
 				printchar_double_top_right: begin
-					video_address <= video_address + 1;
-					xtext <= xtext + 1;
+					video_address <= video_address + 16'h0001;
+					xtext <= xtext + 8'h01;
 					video_value <= {
 						invert,
 						underline,
@@ -314,9 +314,9 @@ always @(posedge clk)
 				end
 
 				printchar_double_bottom_left: begin
-					video_address <= video_address + (16'd`TEXTCOLS_CHAR - 1);
-					xtext <= xtext - 1;
-					ytext <= ytext + 1;
+					video_address <= video_address + (16'd`TEXTCOLS_CHAR - 16'h0001);
+					xtext <= xtext - 8'h01;
+					ytext <= ytext + 8'h01;
 					video_value <= {
 						invert,
 						underline,
@@ -333,8 +333,8 @@ always @(posedge clk)
 				end
 				
 				printchar_double_bottom_right: begin
-					video_address <= video_address + 16'd1;
-					xtext <= xtext + 1;
+					video_address <= video_address + 16'h0001;
+					xtext <= xtext + 8'h01;
 					video_value <= {
 						invert,
 						underline,
@@ -352,9 +352,9 @@ always @(posedge clk)
 
 				printchar_double_end: begin
 					busy <= `FALSE;
-					video_address <= video_address - (16'd`TEXTCOLS_CHAR - 1);
-					xtext <= xtext + 1;
-					ytext <= ytext - 1;
+					video_address <= video_address - (16'd`TEXTCOLS_CHAR - 16'h0001);
+					xtext <= xtext + 8'h01;
+					ytext <= ytext - 8'h01;
 					video_write <= `FALSE;
 					tpu_state <= readcommand;
 				end

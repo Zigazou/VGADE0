@@ -11,7 +11,7 @@ parameter duration_off = 25_000_000;
 localparam duration = duration_on + duration_off;
 
 integer counter;
-always @(posedge clk or posedge reset) 
+always @(posedge clk) 
 	if (reset)
 		counter <= 0;
 	else begin

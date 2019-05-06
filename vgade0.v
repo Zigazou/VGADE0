@@ -23,6 +23,9 @@ wire [`CHARHEIGHT_RANGE] ychar;
 
 wire [`TEXTCOLS_RANGE] xtext;
 wire [`TEXTROWS_RANGE] ytext;
+wire clk_load_design;
+wire clk_load_char;
+wire clk_draw_char;
 vga_timing_800_600_72 vga_timer (
 	.clk (clk),
 	.reset (~reset_button),
@@ -99,7 +102,7 @@ i2c_slave i2c (
 
 tpu tpu_instance (
 	.clk (clk),
-	.reset (reset),
+	.reset (~reset_button),
 
 	.execute (execute),
 	.command (command),
@@ -120,6 +123,7 @@ temoin debug(
 
 wire [7:0] _row;
 character_generator char_gen (
+	.clk (clk),
 	.clk_load_design (clk_load_char),
 
 	.ychar (ychar),
