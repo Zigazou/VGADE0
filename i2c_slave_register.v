@@ -63,6 +63,8 @@ module i2c_slave_register (
 reg [7:0] _character;
 reg [7:0] _xtext;
 reg [7:0] _ytext;
+reg [7:0] _xtext_end;
+reg [7:0] _ytext_end;
 reg [7:0] _attribute1;
 reg [7:0] _attribute2;
 
@@ -81,6 +83,8 @@ always @(posedge clk)
 		`I2C_MASK_CHAR: dataOut <= _mask_char;
 		`I2C_MASK_ATTR1: dataOut <= _mask_attr1;
 		`I2C_MASK_ATTR2: dataOut <= _mask_attr2;
+		`I2C_XTEXT_END: dataOut <= _xtext_end;
+		`I2C_YTEXT_END: dataOut <= _ytext_end;
 		default: dataOut <= 8'h00;
 	endcase
 
@@ -97,6 +101,8 @@ always @(posedge clk)
 			`I2C_MASK_CHAR: _mask_char <= dataIn;
 			`I2C_MASK_ATTR1: _mask_attr1 <= dataIn;
 			`I2C_MASK_ATTR2: _mask_attr2 <= dataIn;
+			`I2C_XTEXT_END: _xtext_end <= dataIn;
+			`I2C_YTEXT_END: _ytext_end <= dataIn;
 
 			// Run command.
 			`I2C_CLEARSCREEN: command <= { 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, `TPU_CLEARSCREEN };
@@ -104,6 +110,7 @@ always @(posedge clk)
 			`I2C_LOCATE: command <= { 8'h00, 8'h00, 8'h00, _ytext, _xtext, `TPU_LOCATE };
 			`I2C_SETATTR: command <= { 8'h00, 8'h00, 8'h00, _attribute2, _attribute1, `TPU_SETATTR };
 			`I2C_SETMASK: command <= { 8'h00, 8'h00, _mask_attr2, _mask_attr1, _mask_char, `TPU_SETMASK };
+			`I2C_FILLAREA: command <= { 8'h00, 8'h00, _character, _ytext_end, _xtext_end, `TPU_FILLAREA };
 		endcase
 
 		// If it is a command, it must be executed.

@@ -109,6 +109,8 @@
 `define I2C_MASK_CHAR	8'h05
 `define I2C_MASK_ATTR1	8'h06
 `define I2C_MASK_ATTR2	8'h07
+`define I2C_XTEXT_END	8'h08
+`define I2C_YTEXT_END	8'h09
 
 // Run command.
 `define I2C_CLEARSCREEN	8'h80
@@ -116,6 +118,7 @@
 `define I2C_LOCATE		8'h82
 `define I2C_SETATTR		8'h83
 `define I2C_SETMASK		8'h84
+`define I2C_FILLAREA		8'h85
 
 // TPU commands.
 `define TPU_CLEARSCREEN 8'h01
@@ -123,5 +126,6 @@
 `define TPU_LOCATE 8'h03
 `define TPU_SETATTR 8'h04
 `define TPU_SETMASK 8'h05
+`define TPU_FILLAREA 8'h06
 
 `endif
