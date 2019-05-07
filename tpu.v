@@ -467,7 +467,7 @@ always @(posedge clk)
 					};
 					xtext_start <= xtext;
 					video_write <= `TRUE;
-					tpu_state <= fillarea_yloop;
+					tpu_state <= fillarea_xloop;
 				end
 			end
 
@@ -475,8 +475,8 @@ always @(posedge clk)
 				if (xtext == xtext_end)
 					tpu_state <= fillarea_yloop;
 				else begin
-					xtext <= xtext + 1;
-					video_address <= video_address + 1;
+					xtext <= xtext + 8'h01;
+					video_address <= video_address + 8'h01;
 					tpu_state <= fillarea_xloop;
 				end
 			end
@@ -485,18 +485,18 @@ always @(posedge clk)
 				if (ytext == ytext_end)
 					tpu_state <= fillarea_end;
 				else begin
-					video_address <= xtext_start + (ytext + 1) * 16'd`TEXTCOLS_CHAR;
+					video_address <= xtext_start + (ytext + 8'h01) * 16'd`TEXTCOLS_CHAR;
 					xtext <= xtext_start;
-					ytext <= ytext + 1;
+					ytext <= ytext + 8'h01;
 					tpu_state <= fillarea_xloop;
 				end
 				
 			end
 			
 			fillarea_end: begin
-					busy <= `FALSE;
-					video_write <= `FALSE;
-					tpu_state <= readcommand;
+				busy <= `FALSE;
+				video_write <= `FALSE;
+				tpu_state <= readcommand;
 			end
 
 			// ------------------------------------------------------------------
@@ -509,6 +509,7 @@ always @(posedge clk)
 				video_mask <= 24'hFFFFFF;
 
 				xtext <= 0;
+				xtext_start <= 0;
 				ytext <= 0;
 				xtext_end <= 0;
 				ytext_end <= 0;
