@@ -50,8 +50,14 @@ assign invert		= character[`CHARATTR_INVERT];
 
 // Handle external writes to the video memory
 wire [23:0] new_value;
+
 assign new_value = (memory[video_address] & ~video_mask) | (video_value & video_mask);
 always @(posedge clk)
 	if (video_write) memory[video_address] <= new_value;
-	
+
+/*
+assign new_value = (memory[video_address_from] & ~video_mask) | (video_value & video_mask);
+always @(posedge clk)
+	if (video_write) memory[video_address_to] <= new_value;
+*/
 endmodule

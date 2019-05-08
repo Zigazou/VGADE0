@@ -146,15 +146,15 @@ reg [`COLOR_RANGE] background;
 reg blink;
 reg pixel;
 reg [7:0] row;
-
+/*
 always @(posedge clk_draw_char) begin
 	row        <= _row;
 	foreground <= _foreground;
 	background <= _background;
 	blink      <= _blink;
 end
+*/
 
-/*
 always @(posedge clk)
 	if (clk_draw_char) begin
 		row        <= _row;
@@ -162,7 +162,7 @@ always @(posedge clk)
 		background <= _background;
 		blink      <= _blink;
 	end
-*/
+
 
 always @(posedge clk)
 	case ({ drawing, row[xchar] & (~blink | blinking) })
@@ -170,6 +170,5 @@ always @(posedge clk)
 		2'b10: dac <= background;
 		default: dac <= 3'b0;
 	endcase
-
 
 endmodule

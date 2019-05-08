@@ -100,6 +100,6 @@ assign clk_load_design = (xpos >= hloading_start + 2)
                       && (xpos < hloading_end + 2)
 					       && (((xpos - (hloading_start + 2)) & 7) == 0);
 
-assign clk_draw_char = drawing && (xchar == 0);
+assign clk_draw_char = vdrawing && (xpos >= hdrawing_start - 1) && (xpos < hdrawing_end) && (xchar == 7);
 
 endmodule
