@@ -46,15 +46,15 @@ vga_timing_800_600_72 vga_timer (
 );
 
 // Character attributes
-wire [`SIZE_RANGE] _size;
-wire [`PART_RANGE] _part;
-wire [`CHARINDEX_RANGE] _charindex;
-wire _halftone;
-wire _blink;
-wire _underline;
-wire _invert;
-wire [`COLOR_RANGE] _foreground;
-wire [`COLOR_RANGE] _background;
+wire [`SIZE_RANGE] next_size;
+wire [`PART_RANGE] next_part;
+wire [`CHARINDEX_RANGE] next_charindex;
+wire next_halftone;
+wire next_blink;
+wire next_underline;
+wire next_invert;
+wire [`COLOR_RANGE] next_foreground;
+wire [`COLOR_RANGE] next_background;
 
 wire video_write;
 wire [15:0] video_address;
@@ -68,16 +68,16 @@ video_memory memory (
 	.xtext (xtext),
 	.ytext (ytext),
 
-	.charindex (_charindex),
+	.charindex (next_charindex),
 
-	.halftone (_halftone),
-	.foreground (_foreground),
-	.background (_background),
-	.size (_size),
-	.part (_part),
-	.blink (_blink),
-	.underline (_underline),
-	.invert (_invert),
+	.halftone (next_halftone),
+	.foreground (next_foreground),
+	.background (next_background),
+	.size (next_size),
+	.part (next_part),
+	.blink (next_blink),
+	.underline (next_underline),
+	.invert (next_invert),
 	
 	.video_write (video_write),
 	.video_address (video_address),
@@ -113,25 +113,25 @@ tpu tpu_instance (
 	.video_mask (video_mask)
 );
 
-wire [7:0] _row;
+wire [7:0] next_row;
 character_generator char_gen (
 	.clk (clk),
 	.clk_load_design (clk_load_char),
 
 	.ychar (ychar),
 
-	.charindex (_charindex),
+	.charindex (next_charindex),
 
-	.xsize (_size[0]),
-	.ysize (_size[1]),
+	.xsize (next_size[0]),
+	.ysize (next_size[1]),
 
-	.xpart (_part[0]),
-	.ypart (_part[1]),
+	.xpart (next_part[0]),
+	.ypart (next_part[1]),
 
-	.halftone (_halftone),
-	.underline (_underline),
-	.invert (_invert),
-	.pixels (_row)
+	.halftone (next_halftone),
+	.underline (next_underline),
+	.invert (next_invert),
+	.pixels (next_row)
 );
 
 wire blinking;
@@ -141,33 +141,24 @@ blinking timer (
 	.blinking (blinking)
 );
 
-reg [`COLOR_RANGE] foreground;
-reg [`COLOR_RANGE] background;
-reg blink;
-reg pixel;
-reg [7:0] row;
-/*
-always @(posedge clk_draw_char) begin
-	row        <= _row;
-	foreground <= _foreground;
-	background <= _background;
-	blink      <= _blink;
-end
-*/
+reg [`COLOR_RANGE] current_foreground;
+reg [`COLOR_RANGE] current_background;
+reg current_blink;
+reg [7:0] current_row;
 
 always @(posedge clk)
 	if (clk_draw_char) begin
-		row        <= _row;
-		foreground <= _foreground;
-		background <= _background;
-		blink      <= _blink;
+		current_row        <= next_row;
+		current_foreground <= next_foreground;
+		current_background <= next_background;
+		current_blink      <= next_blink;
 	end
 
 
 always @(posedge clk)
-	case ({ drawing, row[xchar] & (~blink | blinking) })
-		2'b11: dac <= foreground;
-		2'b10: dac <= background;
+	case ({ drawing, current_row[xchar] & (~current_blink | blinking) })
+		2'b11: dac <= current_foreground;
+		2'b10: dac <= current_background;
 		default: dac <= 3'b0;
 	endcase
 
