@@ -128,9 +128,7 @@ character_generator char_gen (
 	.xpart (next_part[0]),
 	.ypart (next_part[1]),
 
-	.halftone (next_halftone),
 	.underline (next_underline),
-	.invert (next_invert),
 	.pixels (next_row)
 );
 
@@ -144,7 +142,9 @@ blinking timer (
 reg [`COLOR_RANGE] current_foreground;
 reg [`COLOR_RANGE] current_background;
 reg current_blink;
+reg current_invert;
 reg [7:0] current_row;
+reg [7:0] current_mask;
 
 always @(posedge clk)
 	if (clk_draw_char) begin
@@ -152,14 +152,32 @@ always @(posedge clk)
 		current_foreground <= next_foreground;
 		current_background <= next_background;
 		current_blink      <= next_blink;
+		current_invert     <= next_invert;
+
+		case ({ next_halftone, ychar[0] })
+			2'b00: current_mask <= 8'b11111111;
+			2'b01: current_mask <= 8'b11111111;
+			2'b10: current_mask <= 8'b10101010;
+			2'b11: current_mask <= 8'b01010101;
+			default: current_mask <= 8'bxxxxxxxx;
+		endcase
 	end
 
-
 always @(posedge clk)
-	case ({ drawing, current_row[xchar] & (~current_blink | blinking) })
-		2'b11: dac <= current_foreground;
-		2'b10: dac <= current_background;
-		default: dac <= 3'b0;
-	endcase
+	if (drawing & current_mask[xchar])
+		case ({ current_row[xchar], current_invert, ~current_blink | blinking })
+			3'b000: dac <= current_background;
+			3'b001: dac <= current_background;
+			3'b010: dac <= current_background;
+			3'b011: dac <= current_foreground;
+
+			3'b100: dac <= current_background;
+			3'b101: dac <= current_foreground;
+			3'b110: dac <= current_foreground;
+			3'b111: dac <= current_background;
+			default: dac <= 3'b000;
+		endcase
+	else
+		dac <= 3'b000;
 
 endmodule
